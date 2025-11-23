@@ -132,9 +132,6 @@ public class Alumno {
         return !this.activo;
     }
 
-
-    // CAMBIO CLEAN CODE: Recibimos el separador como parámetro.
-    // La clase Alumno ya no "decide" el formato, solo obedece.
     public String generarLineaCSV(String separador) {
         StringBuilder sb = new StringBuilder();
         
