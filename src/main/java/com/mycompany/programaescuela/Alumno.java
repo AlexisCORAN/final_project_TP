@@ -10,102 +10,137 @@ package com.mycompany.programaescuela;
  */
 
 public class Alumno {
-    // Atributos privados
+
     private String dni;
-    private String nombres;
-    private String apellidos;
-    private String correo;   
-    private String telefono; 
+    private String nombre;
+    private String apellido;
+    private String correo;
+    private String telefono;
     private double nota1, nota2, nota3, nota4;
     private double promedio;
-    private String estado;
+    private boolean activo;
 
-    // Constructor
-    public Alumno(String dni, String nombres, String apellidos, String correo, String telefono,
-                  double n1, double n2, double n3, double n4) {
+    public Alumno(String dni, String nombre, String apellido, String correo, String telefono,
+                  double n1, double n2, double n3, double n4, String retirado) {
+
         this.dni = dni;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
+        this.nombre = nombre;
+        this.apellido = apellido;
         this.correo = correo;
         this.telefono = telefono;
+
         this.nota1 = n1;
         this.nota2 = n2;
         this.nota3 = n3;
         this.nota4 = n4;
-        this.calcularPromedio();
+
+        this.activo = (retirado == null || retirado.equalsIgnoreCase("No"));
+
+        recalcularPromedio();
     }
 
-    private void calcularPromedio() {
+
+    private void recalcularPromedio() {
         this.promedio = (nota1 + nota2 + nota3 + nota4) / 4.0;
-        this.estado = (this.promedio >= 11.5) ? "APROBADO" : "DESAPROBADO";
     }
 
+    public String getEstadoAcademico() {
+        return (promedio >= 11.5) ? "APROBADO" : "DESAPROBADO";
+    }
+
+    public boolean estaActivo() {
+        return activo;
+    }
+
+    public String getSituacionTexto() {
+        return activo ? "ACTIVO" : "RETIRADO";
+    }
+
+
+    // ---------- Getters ----------
     public String getDni() { return dni; }
-    public String getNombreCompleto() { return nombres + " " + apellidos; }
+
+    public String getNombreCompleto() {
+        return nombre + " " + apellido;
+    }
+
     public double getPromedio() {
         return promedio;
     }
-    
+
     public String getCorreo() {
         return correo;
     }
+
     public String getTelefono() {
         return telefono;
     }
+    
     public double getNota1() {
         return nota1;
-    } 
+    }
+
+    public double getNota2() {
+        return nota2;
+    }
+    public double getNota3() {
+        return nota3;
+    }
+    public double getNota4() {
+        return nota4;
+    }
 
     public void setCorreo(String correo) {
         this.correo = correo;
     }
+
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
-    
+
     public void setNota1(double n1) {
-        this.nota1 = n1; calcularPromedio(); }
-    public void setNota2(double n2) { 
-       this.nota2 = n2; calcularPromedio();
+        this.nota1 = n1;
+        recalcularPromedio();
     }
-    public void setNota3(double n3) { 
-        this.nota3 = n3; calcularPromedio();
-    } 
+
+    public void setNota2(double n2) {
+        this.nota2 = n2;
+        recalcularPromedio();
+    }
+
+    public void setNota3(double n3) {
+        this.nota3 = n3;
+        recalcularPromedio();
+    }
+
     public void setNota4(double n4) {
-        this.nota4 = n4; calcularPromedio();
-    } 
+        this.nota4 = n4;
+        recalcularPromedio();
+    }
+
 
     public String generarLineaCSV() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(escapeCsv(dni)).append(",");
-        sb.append(escapeCsv(nombres)).append(",");
-        sb.append(escapeCsv(apellidos)).append(",");
-        sb.append(escapeCsv(telefono == null ? "" : telefono)).append(",");
-        sb.append(escapeCsv(correo == null ? "" : correo)).append(",");
-        sb.append(nota1).append(",");
-        sb.append(nota2).append(",");
-        sb.append(nota3).append(",");
-        sb.append(nota4);
-        return sb.toString();
+        return String.format("%s,%s,%s,%s,%s,%.2f,%.2f,%.2f,%.2f",
+                dni,
+                nombre,
+                apellido,
+                telefono == null ? "" : telefono,
+                correo == null ? "" : correo,
+                nota1, nota2, nota3, nota4
+        );
     }
 
-    private String escapeCsv(String s) {
-        if (s == null) return "";
-        String out = s.replace("\"", "\"\"");
-        if (out.contains(",") || out.contains("\"") || out.contains("\n") || out.contains("\r")) {
-            return "\"" + out + "\"";
-        }
-        return out;
-    }
 
-    public String getEstado() {
-        return estado;
-    }
-
+    // ---------- Representación de texto ----------
     @Override
     public String toString() {
-        return String.format("DNI: %-10s | Alumno: %-30s | Promedio: %05.2f | Estado: %s", 
-                             dni, getNombreCompleto(), promedio, estado);
+        return String.format(
+            "DNI: %-10s | Alumno: %-30s | Promedio: %05.2f | Estado Académico: %s | Situación: %s",
+            dni,
+            getNombreCompleto(),
+            promedio,
+            getEstadoAcademico(),
+            getSituacionTexto()
+        );
     }
 }
