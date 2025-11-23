@@ -47,9 +47,10 @@ public class ProgramaEscuela {
                    2. Mostrar Reporte de Promedios
                    3. Buscar Alumno por DNI
                    4. Registrar Nuevo Alumno
-                   5. Editar Datos de Alumno
-                   6. Exportar Resultados
-                   7. Salir
+                   5. Retirar Alumno
+                   6. Editar Datos de Alumno
+                   7. Exportar Resultados
+                   8. Salir
                """;
 
         int opcion = 0;
@@ -166,14 +167,25 @@ public class ProgramaEscuela {
                     break;
 
                 case 5:
-                    sistema.editarDatosAlumno(tecla);
+                    System.out.println("\n--- RETIRAR ALUMNO ---");
+                    System.out.print("Ingrese DNI del alumno a retirar: ");
+                    String dniRet = tecla.nextLine();
+                    if (sistema.retirarAlumno(dniRet)) {
+                        System.out.println("Alumno con DNI " + dniRet + " marcado como RETIRADO.");
+                    } else {
+                        System.out.println("No se pudo retirar alumno. Verifique el DNI o si ya está retirado.");
+                    }
                     break;
 
                 case 6:
-                    sistema.exportarCSV(archivoSalida);
+                    sistema.editarDatosAlumno(tecla);
                     break;
 
                 case 7:
+                    sistema.exportarCSV(archivoSalida);
+                    break;
+
+                case 8:
                     System.out.println("Cerrando sistema...");
                     break;
 

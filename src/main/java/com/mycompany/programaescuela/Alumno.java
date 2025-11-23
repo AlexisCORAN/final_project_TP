@@ -56,8 +56,10 @@ public class Alumno {
         return activo ? "ACTIVO" : "RETIRADO";
     }
 
+    public String getRetirado() {
+        return activo ? "No" : "Sí";
+    }
 
-    // ---------- Getters ----------
     public String getDni() { return dni; }
 
     public String getNombreCompleto() {
@@ -118,20 +120,45 @@ public class Alumno {
         recalcularPromedio();
     }
 
+    public void retirar() {
+        this.activo = false;
+    }
 
-    public String generarLineaCSV() {
-        return String.format("%s,%s,%s,%s,%s,%.2f,%.2f,%.2f,%.2f",
-                dni,
-                nombre,
-                apellido,
-                telefono == null ? "" : telefono,
-                correo == null ? "" : correo,
-                nota1, nota2, nota3, nota4
-        );
+    public void reintegrar() {
+        this.activo = true;
+    }
+
+    public boolean estaRetirado() {
+        return !this.activo;
     }
 
 
-    // ---------- Representación de texto ----------
+    // CAMBIO CLEAN CODE: Recibimos el separador como parámetro.
+    // La clase Alumno ya no "decide" el formato, solo obedece.
+    public String generarLineaCSV(String separador) {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(dni).append(separador);
+        // Validamos nulos
+        sb.append(nombre == null ? "" : nombre).append(separador);
+        sb.append(apellido == null ? "" : apellido).append(separador);
+        sb.append(telefono == null ? "" : telefono).append(separador);
+        sb.append(correo == null ? "" : correo).append(separador);
+        
+        sb.append(String.format(java.util.Locale.US, "%.2f", nota1)).append(separador);
+        sb.append(String.format(java.util.Locale.US, "%.2f", nota2)).append(separador);
+        sb.append(String.format(java.util.Locale.US, "%.2f", nota3)).append(separador);
+        sb.append(String.format(java.util.Locale.US, "%.2f", nota4)).append(separador);
+        
+
+        sb.append(String.format(java.util.Locale.US, "%.2f", promedio)).append(separador);
+        sb.append(getEstadoAcademico()).append(separador);
+
+        sb.append(getRetirado()); 
+        
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return String.format(

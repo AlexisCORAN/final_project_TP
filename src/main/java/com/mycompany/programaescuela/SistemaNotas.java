@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 import java.util.Scanner;
 /**
  *
@@ -21,6 +22,7 @@ import java.util.Scanner;
 public class SistemaNotas {
 
     private ArrayList<Alumno> listaEstudiantes;
+    private String sep = ",";
 
     public SistemaNotas() {
         this.listaEstudiantes = new ArrayList<>();
@@ -39,45 +41,48 @@ public class SistemaNotas {
         listaEstudiantes.clear();
         File archivo = new File(ruta);
 
-        if (!archivo.exists()){
-            return false;
-        }
+        if (!archivo.exists()) return false;
+
         try {
-
             byte[] bytes = Files.readAllBytes(Paths.get(ruta));
-
             boolean tieneBomUtf8 = bytes.length >= 3 &&
                     (bytes[0] & 0xFF) == 0xEF &&
                     (bytes[1] & 0xFF) == 0xBB &&
                     (bytes[2] & 0xFF) == 0xBF;
 
-            java.nio.charset.Charset seleccionado = StandardCharsets.UTF_8;
+            java.nio.charset.Charset charsetSeleccionado = StandardCharsets.UTF_8;
 
             if (!tieneBomUtf8) {
                 String sUtf8 = new String(bytes, StandardCharsets.UTF_8);
                 String sWin = new String(bytes, java.nio.charset.Charset.forName("windows-1252"));
-
-                if (!sUtf8.matches(".*[áéíóúÁÉÍÓÚñÑ].*") &&
-                        sWin.matches(".*[áéíóúÁÉÍÓÚñÑ].*")) {
-                    seleccionado = java.nio.charset.Charset.forName("windows-1252");
+                if (!sUtf8.matches(".*[áéíóúÁÉÍÓÚñÑ].*") && sWin.matches(".*[áéíóúÁÉÍÓÚñÑ].*")) {
+                    charsetSeleccionado = java.nio.charset.Charset.forName("windows-1252");
                 }
             }
 
             try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(new ByteArrayInputStream(bytes), seleccionado))) {
+                    new InputStreamReader(new ByteArrayInputStream(bytes), charsetSeleccionado))) {
 
-                String linea;
-                boolean header = true;
+                String linea = br.readLine();
 
-                while ((linea = br.readLine()) != null) {
-                    if (header) {
-                        header = false;
-                        continue;
+                if (linea != null) {
+                    if (linea.startsWith("sep=") || linea.startsWith("SEP=")) {
+                        String posible = linea.length() > 4 ? linea.substring(4) : ",";
+                        this.sep = posible;
+                        
+                        linea = br.readLine();
+                    } else {
+                        int cuentaPuntoComa = linea.length() - linea.replace(";", "").length();
+                        int cuentaComa = linea.length() - linea.replace(",", "").length();
+                        this.sep = (cuentaPuntoComa > cuentaComa) ? ";" : ",";
+                       
                     }
-                    if (!linea.trim().isEmpty()) procesarLineaCSV(linea);
+
+                    while ((linea = br.readLine()) != null) {
+                        if (!linea.trim().isEmpty()) procesarLineaCSV(linea);
+                    }
                 }
             }
-
             return true;
 
         } catch (IOException e) {
@@ -89,20 +94,20 @@ public class SistemaNotas {
 
     public void procesarLineaCSV(String linea) {
         try {
-            String[] datos = linea.split(",");
+            String[] datos = linea.split(Pattern.quote(this.sep), -1);
 
-            if (datos.length < 21) return;
+            if (datos.length < 21) return; // necesitamos índices hasta 20
 
-            String dni = datos[0];
-            String nombres = datos[1];
-            String apellidos = datos[2];
-            String telefono = datos[7];
-            String correo = datos[9];
+            String dni = datos[0].trim();
+            String nombres = datos[1].trim();
+            String apellidos = datos[2].trim();
+            String telefono = datos.length > 7 ? datos[7].trim() : "";
+            String correo = datos.length > 9 ? datos[9].trim() : "";
 
-            double n1 = Double.parseDouble(datos[17]);
-            double n2 = Double.parseDouble(datos[18]);
-            double n3 = Double.parseDouble(datos[19]);
-            double n4 = Double.parseDouble(datos[20]);
+            double n1 = parsearDouble(datos[17]);
+            double n2 = parsearDouble(datos[18]);
+            double n3 = parsearDouble(datos[19]);
+            double n4 = parsearDouble(datos[20]);
 
             String retirado = (datos.length > 23) ? datos[23].trim() : "No";
 
@@ -112,6 +117,14 @@ public class SistemaNotas {
         } catch (Exception e) {
             System.out.println("Error procesando línea: " + e.getMessage());
         }
+    }
+    
+    private double parsearDouble(String val) {
+        if (val == null) return 0.0;
+        String t = val.replace("\"", "").trim();
+        if (t.isEmpty()) return 0.0;
+        if (t.contains(",") && !t.contains(".")) t = t.replace(',', '.');
+        try { return Double.parseDouble(t); } catch (Exception e) { return 0.0; }
     }
 
     public void listarPromediosFiltro(int opcionFiltro) {
@@ -160,6 +173,14 @@ public class SistemaNotas {
         }
         return null;
     }
+
+    public boolean retirarAlumno(String dni) {
+        Alumno a = buscarAlumnoDni(dni);
+        if (a == null) return false;
+        if (!a.estaActivo()) return false; // ya retirado
+        a.retirar();
+        return true;
+    }
     
     public void editarDatosAlumno(Scanner sc) {
 
@@ -181,7 +202,10 @@ public class SistemaNotas {
             System.out.println("2. Actualizar Teléfono");
             System.out.println("3. Corregir Nota 1");
             System.out.println("4. Corregir Nota 2");
-            System.out.println("5. Volver");
+            System.out.println("5. Corregir Nota 3");
+            System.out.println("6. Corregir Nota 4");
+            System.out.println("7. Reintegrar alumno (si está retirado)");
+            System.out.println("8. Volver");
             System.out.print("¿Qué desea hacer? ");
 
             try {
@@ -195,14 +219,12 @@ public class SistemaNotas {
                         alumno.setCorreo(sc.nextLine());
                         System.out.println(">> Correo actualizado.");
                     }
-
                     case 2 -> {
                         System.out.println("Teléfono actual: " + alumno.getTelefono());
                         System.out.print("Nuevo Teléfono: ");
                         alumno.setTelefono(sc.nextLine());
                         System.out.println(">> Teléfono actualizado.");
                     }
-
                     case 3 -> {
                         System.out.println("Nota 1 actual: " + alumno.getNota1());
                         System.out.print("Nueva Nota 1: ");
@@ -210,7 +232,6 @@ public class SistemaNotas {
                         alumno.setNota1(n1);
                         System.out.println(">> Nota actualizada. Nuevo promedio: " + alumno.getPromedio());
                     }
-
                     case 4 -> {
                         System.out.println("Nota 2 actual: " + alumno.getNota2());
                         System.out.print("Nueva Nota 2: ");
@@ -232,9 +253,15 @@ public class SistemaNotas {
                         alumno.setNota4(n4);
                         System.out.println(">> Nota actualizada. Nuevo promedio: " + alumno.getPromedio());
                     }
-
-                    case 7 -> System.out.println("Regresando...");
-
+                    case 7 -> {
+                        if (alumno.estaRetirado()) {
+                            alumno.reintegrar();
+                            System.out.println(">> Alumno reintegrado correctamente.");
+                        } else {
+                            System.out.println(">> El alumno ya está activo.");
+                        }
+                    }
+                    case 8 -> System.out.println("Regresando...");
                     default -> System.out.println("Opción no válida.");
                 }
 
@@ -242,7 +269,7 @@ public class SistemaNotas {
                 System.out.println("Ingrese un número válido.");
             }
 
-        } while (op != 5);
+        } while (op != 8);
     }
     
     public void exportarCSV(String ruta) {
@@ -252,35 +279,30 @@ public class SistemaNotas {
             return;
         }
 
-        File archivo = new File(ruta);
+        try (FileOutputStream fos = new FileOutputStream(ruta);
+             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
 
-        try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(archivo), StandardCharsets.UTF_8))) {
+            fos.write(0xEF); fos.write(0xBB); fos.write(0xBF);
 
-            bw.write('\uFEFF'); // BOM UTF-8
+            bw.write("sep=" + this.sep);
+            bw.newLine();
 
-            bw.write("DNI,Nombres,Apellidos,Telefono,Correo,Nota1,Nota2,Nota3,Nota4,Promedio,Estado,Situacion");
+            String cabecera = String.join(this.sep, 
+                "DNI", "Nombres", "Apellidos", "Telefono", "Correo", 
+                "Nota1", "Nota2", "Nota3", "Nota4", "Promedio", "Estado", "Retirado");
+            
+            bw.write(cabecera);
             bw.newLine();
 
             for (int i = 0; i < listaEstudiantes.size(); i++) {
                 Alumno a = getAlumnoIndice(i);
-
-                String base = a.generarLineaCSV();
-
-                String linea = String.format(
-                        java.util.Locale.US,
-                        "%s,%.2f,%s,%s",
-                        base,
-                        a.getPromedio(),
-                        a.getEstadoAcademico(),
-                        a.getSituacionTexto()
-                );
+                String linea = a.generarLineaCSV(this.sep);
 
                 bw.write(linea);
                 bw.newLine();
             }
 
-            System.out.println("Archivo exportado correctamente a: " + ruta);
+            System.out.println("Archivo exportado correctamente usando separador: [" + this.sep + "]");
 
         } catch (IOException e) {
             System.out.println("Error al guardar archivo: " + e.getMessage());
