@@ -47,10 +47,9 @@ public class ProgramaEscuela {
                    2. Mostrar Reporte de Promedios
                    3. Buscar Alumno por DNI
                    4. Registrar Nuevo Alumno
-                   5. Retirar Alumno
-                   6. Editar Datos de Alumno
-                   7. Exportar Resultados
-                   8. Salir
+                   5. Editar Datos de Alumno
+                   6. Exportar Resultados
+                   7. Salir
                """;
 
         int opcion = 0;
@@ -101,8 +100,6 @@ public class ProgramaEscuela {
                     if (encontrado != null) {
                         System.out.println("\n>>> ALUMNO ENCONTRADO <<<");
                         System.out.println(encontrado);
-                        System.out.println("Correo: " + encontrado.getCorreo());
-                        System.out.println("Teléfono: " + encontrado.getTelefono());
                     } else {
                         System.out.println("\nNo se encontró alumno con DNI: " + dniBusqueda);
                     }
@@ -141,7 +138,7 @@ public class ProgramaEscuela {
                         String ape = tecla.nextLine();
                         
                         System.out.print("Genero: ");
-                        char genero = tecla.next().charAt(0);
+                        char genero = tecla.nextLine().charAt(0);
                         
                         System.out.print("Seccion: ");
                         String seccion = tecla.nextLine();
@@ -204,29 +201,19 @@ public class ProgramaEscuela {
                     }
                     break;
                 case 5:
-                    System.out.println("\n--- RETIRAR ALUMNO ---");
-                    System.out.print("Ingrese DNI del alumno a retirar: ");
-                    String dniRet = tecla.nextLine();
-                    if (sistema.retirarAlumno(dniRet)) {
-                        System.out.println("Alumno con DNI " + dniRet + " marcado como RETIRADO.");
-                    } else {
-                        System.out.println("No se pudo retirar alumno. Verifique el DNI o si ya está retirado.");
-                    }
-                    break;
-                case 6:
                     sistema.editarDatosAlumno(tecla);
                     break;
-                case 7:
+                case 6:
                     sistema.exportarCSV(archivoSalida);
                     break;
-                case 8:
+                case 7:
                     System.out.println("Cerrando sistema...");
                     break;
                 default:
                     System.out.println("Opción inválida, intente nuevamente.");
             }
 
-        } while (opcion != 8);
+        } while (opcion != 7);
 
         tecla.close();
     }
