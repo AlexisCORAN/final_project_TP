@@ -136,16 +136,46 @@ public class ProgramaEscuela {
 
                         System.out.print("Nombres: ");
                         String nom = tecla.nextLine();
-
+                        
                         System.out.print("Apellidos: ");
                         String ape = tecla.nextLine();
+                        
+                        System.out.print("Genero: ");
+                        char genero = tecla.next().charAt(0);
+                        
+                        System.out.print("Seccion: ");
+                        String seccion = tecla.nextLine();
+                        
+                        System.out.print("Nivel: ");
+                        String nivel = tecla.nextLine();
+                        
+                        System.out.print("Grado:" );
+                        String grado = tecla.nextLine();
+                       
+                        System.out.print("Teléfono: ");
+                        String telf = tecla.nextLine();
 
                         System.out.print("Correo: ");
                         String correo = tecla.nextLine();
 
-                        System.out.print("Teléfono: ");
-                        String telf = tecla.nextLine();
-
+                        System.out.print("Direccion: ");
+                        String direccion = tecla.nextLine();
+                        
+                        System.out.print("Nombre Apoderado: ");
+                        String nombreApoderado = tecla.nextLine();
+                        
+                        System.out.print("Apellido Apoderado: ");
+                        String  apellidoApoderado = tecla.nextLine();
+                        
+                        System.out.print("Genero Apoderado: ");
+                        char generoApoderado = tecla.next().charAt(0);
+                        
+                        System.out.print("Parentesco Apoderado: ");
+                        String  parentescoApoderado = tecla.nextLine();
+                        
+                        System.out.print("Teléfono Apoderado: ");
+                        String  telefonoApoderado = tecla.nextLine();
+                        
                         System.out.println("Ingrese las notas:");
                         System.out.print("Nota 1: ");
                         double n1 = Double.parseDouble(tecla.nextLine());
@@ -155,8 +185,16 @@ public class ProgramaEscuela {
                         double n3 = Double.parseDouble(tecla.nextLine());
                         System.out.print("Nota 4: ");
                         double n4 = Double.parseDouble(tecla.nextLine());
-
-                        Alumno nuevo = new Alumno(dni, nom, ape, correo, telf, n1, n2, n3, n4, null);
+                        
+                        System.out.print("Porcentaje Asistencia: ");
+                        double porcentajeAsistencia = Double.parseDouble(tecla.nextLine());
+                        
+                        System.out.print("Comportamiento");
+                        String  comportamiento = tecla.nextLine();
+                        
+                        Alumno nuevo = new Alumno(dni, nom, ape, genero, seccion, nivel, grado, telf, correo, direccion,
+                                nombreApoderado, apellidoApoderado, generoApoderado, parentescoApoderado, telefonoApoderado,
+                                n1, n2, n3, n4, null, porcentajeAsistencia, comportamiento);
                         sistema.registrarAlumno(nuevo);
 
                         System.out.println("¡Alumno registrado correctamente!");
@@ -165,7 +203,6 @@ public class ProgramaEscuela {
                         System.out.println("Error: Debe ingresar valores numéricos en las notas.");
                     }
                     break;
-
                 case 5:
                     System.out.println("\n--- RETIRAR ALUMNO ---");
                     System.out.print("Ingrese DNI del alumno a retirar: ");
@@ -176,24 +213,20 @@ public class ProgramaEscuela {
                         System.out.println("No se pudo retirar alumno. Verifique el DNI o si ya está retirado.");
                     }
                     break;
-
                 case 6:
                     sistema.editarDatosAlumno(tecla);
                     break;
-
                 case 7:
                     sistema.exportarCSV(archivoSalida);
                     break;
-
                 case 8:
                     System.out.println("Cerrando sistema...");
                     break;
-
                 default:
                     System.out.println("Opción inválida, intente nuevamente.");
             }
 
-        } while (opcion != 7);
+        } while (opcion != 8);
 
         tecla.close();
     }

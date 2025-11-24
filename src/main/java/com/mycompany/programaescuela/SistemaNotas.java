@@ -8,8 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
 /**
  *
  * @author Alexis
@@ -23,6 +25,16 @@ public class SistemaNotas {
 
     private ArrayList<Alumno> listaEstudiantes;
     private String sep = ",";
+
+    private static class OpcionMenu {
+        String titulo;
+        BiConsumer<Alumno, Scanner> accion;
+
+        public OpcionMenu(String titulo, BiConsumer<Alumno, Scanner> accion) {
+            this.titulo = titulo;
+            this.accion = accion;
+        }
+    }
 
     public SistemaNotas() {
         this.listaEstudiantes = new ArrayList<>();
@@ -96,23 +108,61 @@ public class SistemaNotas {
         try {
             String[] datos = linea.split(Pattern.quote(this.sep), -1);
 
-            if (datos.length < 21) return; // necesitamos índices hasta 20
+            if (datos.length < 21) return;
 
             String dni = datos[0].trim();
             String nombres = datos[1].trim();
             String apellidos = datos[2].trim();
-            String telefono = datos.length > 7 ? datos[7].trim() : "";
-            String correo = datos.length > 9 ? datos[9].trim() : "";
-
+            char genero = datos[3].trim().charAt(0);
+            String seccion = datos[4].trim();
+            String nivel = datos[5].trim();
+            String grado = datos[6].trim();
+            String telefono = datos[7].trim();
+            String correo = datos[9].trim();
+            String direccion = datos[10].trim();
+            String nombreApoderado = datos[12].trim();
+            String apellidoApoderado = datos[13].trim();
+            char generoApoderado = datos[14].charAt(0);
+            String parentescoApoderado = datos[15].trim();
+            String telefonoApoderado = datos[16].trim();
+        
+   
             double n1 = parsearDouble(datos[17]);
             double n2 = parsearDouble(datos[18]);
             double n3 = parsearDouble(datos[19]);
             double n4 = parsearDouble(datos[20]);
 
+            double porcentajeAsistencia = parsearDouble(datos[21]);
+            String comportamiento = datos[22].trim();
+            
             String retirado = (datos.length > 23) ? datos[23].trim() : "No";
-
-            Alumno nuevo = new Alumno(dni, nombres, apellidos, correo, telefono, n1, n2, n3, n4, retirado);
+            
+            
+            Alumno nuevo = new Alumno(
+                dni,
+                nombres,
+                apellidos,
+                genero,
+                seccion,
+                nivel,
+                grado,
+                telefono,
+                correo,
+                direccion,
+                nombreApoderado,
+                apellidoApoderado,
+                generoApoderado,
+                parentescoApoderado,
+                telefonoApoderado,
+                n1,
+                n2,
+                n3,
+                n4,
+                retirado,
+                porcentajeAsistencia,
+                comportamiento) ;
             registrarAlumno(nuevo);
+
 
         } catch (Exception e) {
             System.out.println("Error procesando línea: " + e.getMessage());
@@ -183,10 +233,8 @@ public class SistemaNotas {
     }
     
     public void editarDatosAlumno(Scanner sc) {
-
         System.out.print("Ingrese DNI del alumno a editar: ");
-        String dni = sc.nextLine();
-
+        String dni = sc.nextLine().trim();
         Alumno alumno = buscarAlumnoDni(dni);
 
         if (alumno == null) {
@@ -194,82 +242,134 @@ public class SistemaNotas {
             return;
         }
 
-        int op = 0;
+        List<OpcionMenu> opciones = new ArrayList<>();
+        
+        // --- DATOS DEL ALUMNO ---
+        opciones.add(new OpcionMenu("Actualizar Sección", (a, s) -> {
+            System.out.println("La sección actual: " + a.getSeccion());
+            System.out.print("Ingrese la nueva sección: "); a.setSeccion(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Nivel", (a, s) -> {
+            System.out.println("El nivel actual: " + a.getNivel());
+            System.out.print("Ingrese el nuevo nivel: "); a.setNivel(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Grado", (a, s) -> {
+            System.out.println("El grado actual: " + a.getGrado());
+            System.out.print("Ingrese el nuevo grado: "); a.setGrado(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Teléfono", (a, s) -> {
+            System.out.println("El teléfono actual: " + a.getTelefono());
+            System.out.print("Ingrese el nuevo teléfono: "); a.setTelefono(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Correo", (a, s) -> {
+            System.out.println("El correo actual: " + a.getCorreo());
+            System.out.print("Ingrese el nuevo correo: "); a.setCorreo(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Dirección", (a, s) -> {
+            System.out.println("La direccion actual: " + a.getDireccion());
+            System.out.print("Ingrese la nueva dirección: "); a.setDireccion(s.nextLine());
+        }));
 
-        do {
-            System.out.println("\n--- EDITANDO A: " + alumno.getNombreCompleto() + " ---");
-            System.out.println("1. Actualizar Correo");
-            System.out.println("2. Actualizar Teléfono");
-            System.out.println("3. Corregir Nota 1");
-            System.out.println("4. Corregir Nota 2");
-            System.out.println("5. Corregir Nota 3");
-            System.out.println("6. Corregir Nota 4");
-            System.out.println("7. Reintegrar alumno (si está retirado)");
-            System.out.println("8. Volver");
-            System.out.print("¿Qué desea hacer? ");
+        // --- DATOS DEL APODERADO ---
+        opciones.add(new OpcionMenu("Actualizar Nombres del Apoderado", (a, s) -> {
+            System.out.println("Los nombres del apoderado actual: " + a.getNombreApoderado());
+            System.out.print("Ingrese los nuevos nombres del apoderado: "); a.setNombreApoderado(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Apellidos del Apoderado", (a, s) -> {
+            System.out.println("Los apellidos del apoderado actual:" + a.getApellidoApoderado());
+            System.out.print("Ingrese los nuevos apellidos del apoderado: "); a.setApellidoApoderado(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Género del Apoderado", (a, s) -> {
+            System.out.println("El genero del apoderado actual: " + a.getGeneroApoderado());
+            System.out.print("ingrese el nuevo género del poderado (M/F): ");
+            String g = s.nextLine().trim(); 
+            if (!g.isEmpty()) a.setGeneroApoderado(g.charAt(0));
+        }));
+        opciones.add(new OpcionMenu("Actualizar Parentesco con el Alumno", (a, s) -> {
+            System.out.println("El parentesco actual: " + a.getParentescoApoderado());
+            System.out.print("Ingrese el nuevo parentesco: "); a.setParentescoApoderado(s.nextLine());
+        }));
+        opciones.add(new OpcionMenu("Actualizar Teléfono del Apoderado", (a, s) -> {
+            System.out.println(" El teléfono del apoderado actual: " + a.getTelefonoApoderado());
+            System.out.print("Ingrese el nuevo teléfono del apoderado: "); a.setTelefonoApoderado(s.nextLine());
+        }));
 
-            try {
-                String entrada = sc.nextLine();
-                op = entrada.isEmpty() ? -1 : Integer.parseInt(entrada);
+        // --- NOTAS Y ASISTENCIA ---
+        opciones.add(new OpcionMenu("Actualizar Nota 1", (a, s) -> {
+            System.out.println("La nota 1 actual: " + a.getNota1());
+            double n = leerDouble(s, "ingrese la nueva Nota 1: "); 
+            if (n >= 0) a.setNota1(n);
+        }));
+        opciones.add(new OpcionMenu("Actualizar Nota 2", (a, s) -> {
+            System.out.println("La nota 2 actual: " + a.getNota2());
+            double n = leerDouble(s, "Ingrese la nueva Nota 2: "); 
+            if (n >= 0) a.setNota2(n);
+        }));
+        opciones.add(new OpcionMenu("Actualizar Nota 3", (a, s) -> {
+            System.out.println("La nota actual: " + a.getNota3());
+            double n = leerDouble(s, "Ingrese la nueva Nota 3: "); 
+            if (n >= 0) a.setNota3(n);
+        }));
+        opciones.add(new OpcionMenu("Actualizar Nota 4", (a, s) -> {
+            System.out.println(" La nota actual: " + a.getNota4());
+            double n = leerDouble(s, "Ingrese la nueva Nota 4: "); 
+            if (n >= 0) a.setNota4(n);
+        }));
+        opciones.add(new OpcionMenu("Actualizar Porcentaje Asistencia", (a, s) -> {
+            System.out.println("El porcentaje de asistencia actual: " + a.getPorcentajeAsistencia() + "%");
+            double p = leerDouble(s, "Ingrese el nuevo porcentaje de asistencia (0-100): "); 
+            if (p >= 0) a.setPorcentajeAsistencia(p);
+        }));
+        opciones.add(new OpcionMenu("Actualizar Comportamiento", (a, s) -> {
+            System.out.println("El comportamiento actual: " + a.getComportamiento());
+            System.out.print("Ingrese el nuevo comportamiento: "); a.setComportamiento(s.nextLine());
+        }));
 
-                switch (op) {
-                    case 1 -> {
-                        System.out.println("Correo actual: " + alumno.getCorreo());
-                        System.out.print("Nuevo Correo: ");
-                        alumno.setCorreo(sc.nextLine());
-                        System.out.println(">> Correo actualizado.");
-                    }
-                    case 2 -> {
-                        System.out.println("Teléfono actual: " + alumno.getTelefono());
-                        System.out.print("Nuevo Teléfono: ");
-                        alumno.setTelefono(sc.nextLine());
-                        System.out.println(">> Teléfono actualizado.");
-                    }
-                    case 3 -> {
-                        System.out.println("Nota 1 actual: " + alumno.getNota1());
-                        System.out.print("Nueva Nota 1: ");
-                        double n1 = Double.parseDouble(sc.nextLine());
-                        alumno.setNota1(n1);
-                        System.out.println(">> Nota actualizada. Nuevo promedio: " + alumno.getPromedio());
-                    }
-                    case 4 -> {
-                        System.out.println("Nota 2 actual: " + alumno.getNota2());
-                        System.out.print("Nueva Nota 2: ");
-                        double n2 = Double.parseDouble(sc.nextLine());
-                        alumno.setNota2(n2);
-                        System.out.println(">> Nota actualizada. Nuevo promedio: " + alumno.getPromedio());
-                    }
-                    case 5 -> {
-                        System.out.println("Nota 3 actual: " + alumno.getNota3());
-                        System.out.print("Nueva Nota 3: ");
-                        double n3 = Double.parseDouble(sc.nextLine());
-                        alumno.setNota3(n3);
-                        System.out.println(">> Nota actualizada. Nuevo promedio: " + alumno.getPromedio());
-                    }
-                    case 6 -> {
-                        System.out.println("Nota 4 actual: " + alumno.getNota4());
-                        System.out.print("Nueva Nota 4: ");
-                        double n4 = Double.parseDouble(sc.nextLine());
-                        alumno.setNota4(n4);
-                        System.out.println(">> Nota actualizada. Nuevo promedio: " + alumno.getPromedio());
-                    }
-                    case 7 -> {
-                        if (alumno.estaRetirado()) {
-                            alumno.reintegrar();
-                            System.out.println(">> Alumno reintegrado correctamente.");
-                        } else {
-                            System.out.println(">> El alumno ya está activo.");
-                        }
-                    }
-                    case 8 -> System.out.println("Regresando...");
-                    default -> System.out.println("Opción no válida.");
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Ingrese un número válido.");
+        // --- ESTADO ---
+        opciones.add(new OpcionMenu("Retirar/Reincorporar Alumno", (a, s) -> {
+            System.out.println(" El estado actual: " + (a.estaRetirado() ? "RETIRADO" : "ACTIVO"));
+            if (a.estaRetirado()) { 
+                a.reintegrar(); 
+                System.out.println(">> Alumno reincorporado (ACTIVO)."); 
+            } else { 
+                a.retirar(); 
+                System.out.println(">> Alumno retirado (INACTIVO)."); 
             }
+        }));
+        
+        
+        while (true) {
+            System.out.println("\n--- EDITANDO A: " + alumno.getNombreCompleto() + " ---");
+            
+            for (int i = 0; i < opciones.size(); i++) {
+                System.out.println((i + 1) + ". " + opciones.get(i).titulo);
+            }
+            System.out.println((opciones.size() + 1) + ". Volver");
 
-        } while (op != 8);
+            int seleccion = (int) leerDouble(sc, "Elija una opción: "); 
+
+            if (seleccion == opciones.size() + 1) break;
+        
+
+            if (seleccion > 0 && seleccion <= opciones.size()) {
+
+                opciones.get(seleccion - 1).accion.accept(alumno, sc);
+                System.out.println(">> Cambio realizado con éxito.");
+            } else {
+                System.out.println("Opción inválida.");
+            }
+        }
+    }
+
+    private double leerDouble(Scanner sc, String mensaje) {
+        System.out.print(mensaje);
+        try {
+            String val = sc.nextLine().replace(",", ".");
+            return val.isEmpty() ? -1 : Double.parseDouble(val);
+        } catch (NumberFormatException e) {
+            System.out.println("Valor numérico inválido.");
+            return -1;
+        }
     }
     
     public void exportarCSV(String ruta) {
@@ -282,27 +382,56 @@ public class SistemaNotas {
         try (FileOutputStream fos = new FileOutputStream(ruta);
              BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
 
-            fos.write(0xEF); fos.write(0xBB); fos.write(0xBF);
+            fos.write(0xEF);
+            fos.write(0xBB);
+            fos.write(0xBF);
+
 
             bw.write("sep=" + this.sep);
             bw.newLine();
 
+
             String cabecera = String.join(this.sep, 
-                "DNI", "Nombres", "Apellidos", "Telefono", "Correo", 
-                "Nota1", "Nota2", "Nota3", "Nota4", "Promedio", "Estado", "Retirado");
+                "DNI", 
+                "Nombres", 
+                "Apellidos", 
+                "Genero", 
+                "Seccion",
+                "Nivel", 
+                "Grado",
+                "Telefono", 
+                "Correo", 
+                "Direccion", 
+                "NombreApoderado",    
+                "ApellidoApoderado",  
+                "GeneroApoderado",  
+                "Parentesco",         
+                "TelefonoApoderado",  
+                "Nota1", 
+                "Nota2", 
+                "Nota3", 
+                "Nota4", 
+                "Promedio", 
+                "Asistencia %",       
+                "Comportamiento", 
+                "Estado Academico", 
+                "Retirado"
+            );
             
             bw.write(cabecera);
             bw.newLine();
 
             for (int i = 0; i < listaEstudiantes.size(); i++) {
                 Alumno a = getAlumnoIndice(i);
+        
                 String linea = a.generarLineaCSV(this.sep);
 
                 bw.write(linea);
                 bw.newLine();
             }
 
-            System.out.println("Archivo exportado correctamente usando separador: [" + this.sep + "]");
+            System.out.println("Archivo exportado correctamente a: " + ruta);
+            System.out.println("Separador usado: [" + this.sep + "]");
 
         } catch (IOException e) {
             System.out.println("Error al guardar archivo: " + e.getMessage());
