@@ -110,6 +110,14 @@ public class Alumno {
     public String getNombreCompleto() {
         return String.format("%s %s", nombre, apellido);
     }
+    
+    public String getNombre() {
+        return nombre;
+    }
+    
+    public String getApellido() {
+        return apellido;
+    }
 
     public String getGenero() {
         return String.valueOf(genero);
@@ -189,6 +197,7 @@ public class Alumno {
     
     public void setSeccion(String seccion) {
         this.seccion = seccion;
+        
     }
     
     public void setNivel(String nivel) {
@@ -280,16 +289,28 @@ public class Alumno {
         // Validamos nulos
         sb.append(nombre == null ? "" : nombre).append(separador);
         sb.append(apellido == null ? "" : apellido).append(separador);
+        sb.append(String.valueOf(genero)).append(separador);
+        sb.append(seccion == null ? "" : seccion).append(separador);
+        sb.append(nivel == null ? "" :nivel).append(separador);
+        sb.append(grado == null ? "" : grado).append(separador);
         sb.append(telefono == null ? "" : telefono).append(separador);
         sb.append(correo == null ? "" : correo).append(separador);
+        sb.append(direccion == null ? "" : direccion).append(separador);
+        sb.append(nombreApoderado == null ? "" : nombreApoderado).append(separador);
+        sb.append(apellidoApoderado == null ? "" : apellidoApoderado).append(separador);
+        sb.append(String.valueOf(generoApoderado)).append(separador);
+        sb.append(parentescoApoderado == null ? "" : parentescoApoderado).append(separador);
+        sb.append(telefonoApoderado == null ? "" : telefonoApoderado).append(separador);
         
         sb.append(String.format(java.util.Locale.US, "%.2f", nota1)).append(separador);
         sb.append(String.format(java.util.Locale.US, "%.2f", nota2)).append(separador);
         sb.append(String.format(java.util.Locale.US, "%.2f", nota3)).append(separador);
         sb.append(String.format(java.util.Locale.US, "%.2f", nota4)).append(separador);
         
-
+      
         sb.append(String.format(java.util.Locale.US, "%.2f", promedio)).append(separador);
+        sb.append(String.format(java.util.Locale.US, "%.1f%%", porcentajeAsistencia)).append(separador);
+        sb.append(comportamiento == null ? "" : comportamiento).append(separador);
         sb.append(getEstadoAcademico()).append(separador);
 
         sb.append(getRetirado()); 
