@@ -45,7 +45,7 @@ public class ProgramaEscuela {
                 default -> System.out.println("Opción inválida, intente nuevamente.");
             }
 
-        } while (opcion != 7);
+        } while (opcion != 7&&opcion !=8);
 
         scanner.close();
     }
@@ -102,71 +102,254 @@ public class ProgramaEscuela {
     private static void registrarAlumnoUI() {
 
         String dni, nom, ape, g, seccion, nivel, comp, grado, telf, correo, direccion;
-        char genero, genApo;
-        String nomApo, apeApo, paren, telfApo;
+        char genero='K';
+        char genApo;
+        String nomApo, apeApo, paren, telfApo,asistencia;
         double n1, n2, n3, n4, asist;
         try {
             System.out.println("\n--- REGISTRO DE NUEVO ALUMNO ---");
 
             System.out.print("DNI: ");
-            dni = scanner.nextLine().trim();
-            if (sistema.buscarAlumnoDni(dni) != null) {
-                System.out.println("Error: Ya existe un alumno con ese DNI.");
-                return;
-            }
+            do {                          
+                        dni = scanner.nextLine();
+                        if (!SistemaNotas.validarDNI(dni)) {
+                            System.out.println("Error: Ingrese un número de DNI correcto");}
+                        if (sistema.buscarAlumnoDni(dni) != null) {
+                            System.out.println("Error: Ya existe un alumno con ese DNI.");}
+                        
+                        } while (!SistemaNotas.validarDNI(dni)||sistema.buscarAlumnoDni(dni) != null);
+            
+           System.out.print("Nombres: ");
+           do {                          
+                        nom = scanner.nextLine();
+                        if (!SistemaNotas.validarNyA(nom)) {
+                            System.out.println("Nombres incorrectos (Ejemplo correcto: Juan Gilbert)");}
+                        if (sistema.buscarNyA(nom) != null) {
+                            System.out.println("Error: Ya existe un alumno con ese nombre.");}
+                        
+                        } while (!SistemaNotas.validarNyA(nom)||sistema.buscarNyA(nom) != null);
+           
+           System.out.print("Apellidos: ");
+           do {                          
+                        ape = scanner.nextLine();
+                        if (!SistemaNotas.validarNyA(ape)) {
+                            System.out.println("Apellidos incorrectos (Ejemplo correcto: Alva León)");}
+                        if (sistema.buscarApellido(ape) != null) {
+                            System.out.println("Error: Ya existe un alumno con ese apellido.");}
+                        
+                        } while (!SistemaNotas.validarNyA(ape)||sistema.buscarApellido(ape) != null);
+           
+           //Genero
+           System.out.print("Genero (M/F): "); 
+            do {
+            
+            g = scanner.nextLine();
+            switch(g) {
+                case "M","F"-> {genero = g.isEmpty() ? ' ' : g.charAt(0);}          
+                default-> { System.out.println("Error: Ingrese M o F");              
+                           break;}
+            }   
+            } while (genero!='M'&&genero!='F');
 
-            System.out.print("Nombres: ");
-            nom = scanner.nextLine();
-            System.out.print("Apellidos: ");
-            ape = scanner.nextLine();
-
-            System.out.print("Genero (M/F): "); 
-            g = scanner.nextLine(); 
-            genero = g.isEmpty() ? ' ' : g.charAt(0);
-
+           //Seccion
             System.out.print("Seccion: ");
+            int a=1;
+            do {
+            
             seccion = scanner.nextLine();
+            switch(seccion) {
+                case "A","B","C"-> a=2;          
+                default-> { System.out.println("Error: Ingrese A o B o C");              
+                           break;}
+            }   
+            } while (a==1);
+                
+            //Nivel
             System.out.print("Nivel: ");
+            int b=1;
+            do {
+            
             nivel = scanner.nextLine();
+            switch(nivel) {
+                case "Inicial","Primaria","Secundaria","4 años","3 años","5 años"-> b=2;          
+                default-> { System.out.println("Error: Formato inválido");              
+                           break;}
+            }   
+            } while (b==1);
+            
+            //Grado
             System.out.print("Grado: ");
+            int c=1;
+            do {
+            
             grado = scanner.nextLine();
+            switch(grado) {
+                case "Primero","Segundo","Tecero","Cuarto","Quinto","Sexto"-> c=2;          
+                default-> { System.out.println("Error: Ingrese del 1 al 6 en formato ordinal");              
+                           break;}
+            }   
+            } while (c==1);
+            
+            //Teléfono
             System.out.print("Teléfono: ");
-            telf = scanner.nextLine();
+                        do{
+                        telf = scanner.nextLine();
+                        if (!SistemaNotas.validarTelefono(telf)) {
+                            System.out.println("Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos");}
+                        if (sistema.buscarTelef(telf) != null) {
+                            System.out.println("Error: Ya existe un alumno con ese teléfono");
+                        }
+                        } while (!SistemaNotas.validarTelefono(telf)||sistema.buscarTelef(telf) != null);
+            
+            //Correo
             System.out.print("Correo: ");
-            correo = scanner.nextLine();
+                        do{
+                        correo = scanner.nextLine();
+                        if (!SistemaNotas.validarCorreo(correo)) {
+                            System.out.println("Correo inválido. Debe terminar en @gmail.com");}
+                        if (sistema.buscarCorreo(correo) != null) {
+                            System.out.println("Error: Ya existe un alumno con ese correo");
+                        }
+                        } while (!SistemaNotas.validarCorreo(correo)||sistema.buscarCorreo(correo) != null);
+            
             System.out.print("Direccion: ");
-            direccion = scanner.nextLine();
+                       do{
+                        direccion = scanner.nextLine();
+                        if (!SistemaNotas.validarDireccion(direccion)) {
+                            System.out.println("Dirección inválida");}
+                        } while (!SistemaNotas.validarDireccion(direccion));
 
             // Datos Apoderado
             System.out.print("Nombre Apoderado: ");
-            nomApo = scanner.nextLine();
-            System.out.print("Apellido Apoderado: ");
-            apeApo = scanner.nextLine();
+            do {                          
+                        nomApo = scanner.nextLine();
+                        if (!SistemaNotas.validarNyA(nomApo)) {
+                            System.out.println("Nombres incorrectos (Ejemplo correcto: Juan Gilbert)");}
+                        if (sistema.buscarNyA(nomApo) != null) {
+                            System.out.println("Error: Ya existe un apoderado/alumno con ese nombre.");}
+                        
+                        } while (!SistemaNotas.validarNyA(nomApo)||sistema.buscarNyA(nomApo) != null);
             
-            System.out.print("Genero Apoderado (M/F): ");
-            String ga = scanner.nextLine();
-            genApo = ga.isEmpty() ? ' ' : ga.charAt(0);
+            
+            System.out.print("Apellido Apoderado: ");
+            do {                          
+                        apeApo = scanner.nextLine();
+                        if (!SistemaNotas.validarNyA(apeApo)) {
+                            System.out.println("Apellidos incorrectos (Ejemplo correcto: Alva León)");}
+                        if (sistema.buscarApellido(apeApo) != null) {
+                            System.out.println("Error: Ya existe un apoderado/alumno con ese apellido.");}
+                        
+                        } while (!SistemaNotas.validarNyA(apeApo)||sistema.buscarApellido(apeApo) != null);
+            
+            
+            System.out.print("Genero (M/F): "); 
+            String ga;
+            genApo='M';
+            do {
+            
+            ga = scanner.nextLine();
+            switch(g) {
+                case "M","F"-> {genApo = ga.isEmpty() ? ' ' : ga.charAt(0);}          
+                default-> { System.out.println("Error: Ingrese M o F");              
+                           break;}
+            }   
+            } while (genero!='M'&&genero!='F');
+            
 
+            
             System.out.print("Parentesco Apoderado: ");
+            int d=1;
+            do {
+            
             paren = scanner.nextLine();
+            switch(paren) {
+                case "Padre","Madre","Tío","Tía","Abuelo","Abuela"-> d=2;          
+                default-> { System.out.println("Error: Ingrese un parentesco real que inicie en mayúscula");              
+                           break;}
+            }   
+            } while (d==1);
+            
+            
             System.out.print("Teléfono Apoderado: ");
-            telfApo = scanner.nextLine();
+                        do{
+                        telfApo = scanner.nextLine();
+                        if (!SistemaNotas.validarTelefono(telfApo)) {
+                            System.out.println("Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos");}
+                        if (sistema.buscarTelefonoApoderado(telfApo) != null) {
+                            System.out.println("Error: Ya existe un apoderado/alumno con ese teléfono");
+                        }
+                        } while (!SistemaNotas.validarTelefono(telfApo)||sistema.buscarTelefonoApoderado(telfApo) != null);
+            
 
             // Notas y Asistencia
             System.out.println("Ingrese las notas:");
             System.out.print("Nota 1: ");
-            n1 = Double.parseDouble(scanner.nextLine());
+            String nota1,nota2,nota3,nota4;
+            
+            do {
+            nota1=scanner.nextLine();
+            if (!SistemaNotas.validarNota(nota1)) {
+                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
+                        
+                        } while (!SistemaNotas.validarNota(nota1));          
+            n1 = Double.parseDouble(nota1);
+            
+            
             System.out.print("Nota 2: ");
-            n2 = Double.parseDouble(scanner.nextLine());
+            do {
+            nota2=scanner.nextLine();
+            if (!SistemaNotas.validarNota(nota2)) {
+                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
+                        
+                        } while (!SistemaNotas.validarNota(nota2));          
+            n2 = Double.parseDouble(nota2);
+            
+            
             System.out.print("Nota 3: ");
-            n3 = Double.parseDouble(scanner.nextLine());
+            do {
+            nota3=scanner.nextLine();
+            if (!SistemaNotas.validarNota(nota3)) {
+                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
+                        
+                        } while (!SistemaNotas.validarNota(nota3));          
+            n3 = Double.parseDouble(nota3);
+            
+            
             System.out.print("Nota 4: ");
-            n4 = Double.parseDouble(scanner.nextLine());
+            do {
+            nota4=scanner.nextLine();
+            if (!SistemaNotas.validarNota(nota4)) {
+                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
+                        
+                        } while (!SistemaNotas.validarNota(nota4));          
+            n4 = Double.parseDouble(nota4);
+            
+            
+            
             System.out.print("Porcentaje Asistencia: ");
-            asist =  Double.parseDouble(scanner.nextLine());
+            do {
+            asistencia=scanner.nextLine();
+            if (!SistemaNotas.validarAsistencia(asistencia)) {
+                            System.out.println("Nota inválida. Debe estar entre 0 a 100 y tener un sólo decimal (y que esté separado por un punto)");}
+                        
+                        } while (!SistemaNotas.validarAsistencia(asistencia));          
+            asist =  Double.parseDouble(asistencia);
 
+         
+            
             System.out.print("Comportamiento: ");
+            int e=1;
+            do {
+            
             comp = scanner.nextLine();
+            switch(comp) {
+                case "Excelente","Regular","Bueno","Malo"-> e=2;          
+                default-> { System.out.println("Error: Valor inválido");    
+                            System.out.println("Valores: Bueno, Malo, Regular y Exceente");  
+                           break;}
+            }   
+            } while (e==1);
+            
 
             Alumno nuevo = new Alumno(dni, nom, ape, genero, seccion, nivel, grado, telf, correo, direccion,
                     nomApo, apeApo, genApo, paren, telfApo,
