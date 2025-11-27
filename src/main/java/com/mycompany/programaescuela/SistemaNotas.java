@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.Scanner;
 import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
 /**
  *
  * @author Alexis
@@ -25,6 +26,50 @@ public class SistemaNotas {
 
     private ArrayList<Alumno> listaEstudiantes;
     private String sep = ",";
+    private static final Pattern patronCorreo = Pattern.compile("^[A-Za-z0-9._%+-]+@gmail\\.com$");
+    private static final Pattern patronTelefono = Pattern.compile("^9[0-9]{8}$");
+    private static final Pattern patronNyA = Pattern.compile("^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+ [A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$");
+    private static final Pattern patronNota = Pattern.compile("^[0-9]+.[0-9]$");
+    private static final Pattern patronDNI = Pattern.compile("^[678][0-9]{7}$");
+    private static final Pattern patronDireccion = Pattern.compile("^([A-ZÁÉÍÓÚÑ][a-záéíóúñ]*)(\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]*)*$");
+    
+    
+    
+    public static boolean validarCorreo(String correo) {
+        return patronCorreo.matcher(correo).matches();
+    }
+
+    public static boolean validarTelefono(String dni) {
+        return patronTelefono.matcher(dni).matches();
+    }
+
+    public static boolean validarNota(String nota) {
+        Matcher m = patronNota.matcher(nota);
+        if (!m.matches()) return false;
+        double valor = Double.parseDouble(nota);
+        return valor >= 0 && valor <= 20;
+
+    }
+
+    public static boolean validarNyA(String nya) {
+        return patronNyA.matcher(nya).matches();
+    }
+
+    public static boolean validarDNI(String dni) {
+        return patronDNI.matcher(dni).matches();
+    }
+    
+    public static boolean validarDireccion(String direc) {
+        return patronDireccion.matcher(direc).matches();
+    }
+    
+    public static boolean validarAsistencia(String asistencia) {
+        Matcher m = patronNota.matcher(asistencia);
+        if (!m.matches()) return false;
+        double valor = Double.parseDouble(asistencia);
+        return valor >= 0 && valor <= 100;
+
+    }
 
     private static class OpcionMenu {
         String titulo;
@@ -43,6 +88,212 @@ public class SistemaNotas {
     public void registrarAlumno(Alumno nuevo) {
         listaEstudiantes.add(nuevo);
     }
+    
+    private static String pedirSeccion(Scanner s) {
+    String seccion;
+    do {
+        System.out.print("Ingrese la sección: ");
+        seccion = s.nextLine();
+        if (!seccion.equals("A") && !seccion.equals("B") && !seccion.equals("C")) {
+            System.out.println("Error: Ingrese A, B o C");
+        }
+    } while (!seccion.equals("A") && !seccion.equals("B") && !seccion.equals("C"));
+    return seccion;
+    }
+    
+    private static String pedirNivel(Scanner s) {
+    String nivel;
+    do {
+        System.out.print("Ingrese el nivel: ");
+        nivel = s.nextLine();
+        if (!nivel.equals("Inicial") && !nivel.equals("Primaria") && !nivel.equals("Secundaria")) {
+            System.out.println("Error: Ingrese Inicial o Primaria o Secundaria");
+        }
+    } while (!nivel.equals("Inicial") && !nivel.equals("Primaria") && !nivel.equals("Secundaria"));
+    return nivel;
+    }
+    
+    private static String pedirGrado(Scanner s) {
+    String ngrado;
+    int c=1;
+    do {
+        System.out.print("Ingrese el grado: ");
+        ngrado = s.nextLine();
+        switch(ngrado) {
+                case "Primero","Segundo","Tecero","Cuarto","Quinto","Sexto"-> c=2;          
+                default-> { System.out.println("Error: Ingrese del 1 al 6 en formato ordinal");              
+                           break;}
+            }   
+            } while (c==1);
+    return ngrado;
+    }
+    
+    private static String pedirComportamiento(Scanner s) {
+    String comp;
+    int c=1;
+    do {
+        System.out.print("Ingrese el comportamiento: ");
+        comp = s.nextLine();
+        switch(comp) {
+                case "Excelente","Bueno","Regular","Malo"-> c=2;          
+                default-> { System.out.println("Valores admitidos: Excelente, Bueno, Regular y Malo");              
+                           break;}
+            }   
+            } while (c==1);
+    return comp;
+    }
+    
+    public String pedirTelefono(Scanner s) {
+    String telefono;
+    do {
+        System.out.print("Ingrese el teléfono (9 dígitos, empezando con 9): ");
+        telefono = s.nextLine();
+
+        if (!SistemaNotas.validarTelefono(telefono)) {
+            System.out.println("Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos.");
+        } else if (this.buscarTelef(telefono) != null) {
+            System.out.println("Error: Ya existe un alumno con ese teléfono.");
+        }
+
+    } while (!SistemaNotas.validarTelefono(telefono) || this.buscarTelef(telefono) != null);
+
+    return telefono;
+    }
+  
+    public String pedirCorreo(Scanner s) {
+    String correo;
+    do{
+                        correo = s.nextLine();
+                        if (!SistemaNotas.validarCorreo(correo)) {
+                            System.out.println("Correo inválido. Debe terminar en @gmail.com");}
+                        if (this.buscarCorreo(correo) != null) {
+                            System.out.println("Error: Ya existe un alumno con ese correo");
+                        }
+                        } while (!SistemaNotas.validarCorreo(correo)||this.buscarCorreo(correo) != null);
+
+    return correo;
+    }
+
+    public String pedirDireccion(Scanner s) {
+    String direccion;
+    do{
+                        direccion = s.nextLine();
+                        if (!SistemaNotas.validarDireccion(direccion)) {
+                            System.out.println("Correo inválido. Debe terminar en @gmail.com");}
+                        if (this.buscarCorreo(direccion) != null) {
+                            System.out.println("Error: Ya existe un alumno con ese correo");
+                        }
+                        } while (!SistemaNotas.validarDireccion(direccion)||this.buscarCorreo(direccion) != null);
+
+    return direccion;
+    }
+   
+    public String pedirNombreApoderado(Scanner s) {
+    String nomApo;
+    do{
+                        nomApo = s.nextLine();
+                        if (!SistemaNotas.validarNyA(nomApo)) {
+                            System.out.println("Nombres incorrectos (Ejemplo correcto: Juan Gilbert)");}
+                        if (this.buscarNyA(nomApo) != null) {
+                            System.out.println("Error: Ya existe un apoderado/alumno con ese nombre.");}
+                        
+                        } while (!SistemaNotas.validarNyA(nomApo)||this.buscarNyA(nomApo) != null);
+
+    return nomApo;
+    }
+    
+    public String pedirApellidoApoderado(Scanner s) {
+    String apeApo;
+    do{
+                        apeApo = s.nextLine();
+                        if (!SistemaNotas.validarNyA(apeApo)) {
+                            System.out.println("Apellidos incorrectos (Ejemplo correcto: Alva León)");}
+                        if (this.buscarNyA(apeApo) != null) {
+                            System.out.println("Error: Ya existe un apoderado/alumno con ese apellido.");}
+                        
+                        } while (!SistemaNotas.validarNyA(apeApo)||this.buscarNyA(apeApo) != null);
+
+    return apeApo;
+    }
+    
+    public String pedirGeneroApoderado(Scanner s) {
+    String apeApo;
+    do{
+                        apeApo = s.nextLine();
+                        if (!SistemaNotas.validarNyA(apeApo)) {
+                            System.out.println("Apellidos incorrectos (Ejemplo correcto: Alva León)");}
+                        if (this.buscarNyA(apeApo) != null) {
+                            System.out.println("Error: Ya existe un apoderado/alumno con ese apellido.");}
+                        
+                        } while (!SistemaNotas.validarNyA(apeApo)||this.buscarNyA(apeApo) != null);
+
+    return apeApo;
+    }
+    
+    private static String pedirParentescoApoderado(Scanner s) {
+    String parenApo;
+    int d=1;
+    do {
+        
+        parenApo = s.nextLine();
+        switch(parenApo) {
+                case "Tío","Tía","Padre","Madre","Abuelo","Abuela"-> d=2;          
+                default-> { System.out.println("Error: Ingrese del 1 al 6 en formato ordinal");              
+                           break;}
+            }   
+            } while (d==1);
+    return parenApo;
+    }
+    
+    public String pedirTelefonoApoderado(Scanner s) {
+    String telefonoApo;
+    do {
+        System.out.print("Ingrese el teléfono (9 dígitos, empezando con 9): ");
+        telefonoApo = s.nextLine();
+
+        if (!SistemaNotas.validarTelefono(telefonoApo)) {
+            System.out.println("Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos.");
+        } else if (this.buscarTelef(telefonoApo) != null) {
+            System.out.println("Error: Ya existe un alumno con ese teléfono.");
+        }
+
+    } while (!SistemaNotas.validarTelefono(telefonoApo) || this.buscarTelef(telefonoApo) != null);
+
+    return telefonoApo;
+    }
+    
+    private static double pedirNota(Scanner s) {
+    String notaa;
+    double nota=-1;
+    
+    do {
+            notaa=s.nextLine();
+            if (!SistemaNotas.validarNota(notaa)) {
+                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
+                        
+                        } while (!SistemaNotas.validarNota(notaa));          
+            
+    nota = Double.parseDouble(notaa);
+    return nota;
+    }
+    
+    
+    private static double pedirAsistencia(Scanner s) {
+    String entrade;
+    double porcentaje=-1;
+    
+    do {
+            entrade=s.nextLine();
+            if (!validarAsistencia(entrade)) {
+                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
+                        
+                        } while (!SistemaNotas.validarNota(entrade));          
+            
+    porcentaje = Double.parseDouble(entrade);
+    return porcentaje;
+    }
+    
+
 
     private Alumno getAlumnoIndice(int index) {
         if (index < 0 || index >= listaEstudiantes.size()) return null;
@@ -223,6 +474,78 @@ public class SistemaNotas {
         }
         return null;
     }
+    
+    public Alumno buscarNyA(String nombre) {
+        for (int i = 0; i < listaEstudiantes.size(); i++) {
+            Alumno a = getAlumnoIndice(i);
+            if (a != null && a.getNombre().equals(nombre)){
+                return a;
+            }
+        }
+        return null;
+    }
+    
+    public Alumno buscarApellido(String apellido) {
+        for (int i = 0; i < listaEstudiantes.size(); i++) {
+            Alumno a = getAlumnoIndice(i);
+            if (a != null && a.getApellido().equals(apellido)){
+                return a;
+            }
+        }
+        return null;
+    }
+    
+    public Alumno buscarCorreo(String correo) {
+        for (int i = 0; i < listaEstudiantes.size(); i++) {
+            Alumno a = getAlumnoIndice(i);
+            if (a != null && a.getCorreo().equals(correo)){
+                return a;
+            }
+        }
+        return null;
+    }
+    
+    public Alumno buscarTelef(String telefono) {
+        for (int i = 0; i < listaEstudiantes.size(); i++) {
+            Alumno a = getAlumnoIndice(i);
+            if (a != null && a.getTelefono().equals(telefono)){
+                return a;
+            }
+        }
+        return null;
+    }
+    
+    public Alumno buscarNombreApoderado(String nomApo) {
+        for (int i = 0; i < listaEstudiantes.size(); i++) {
+            Alumno a = getAlumnoIndice(i);
+            if (a != null && a.getNombreApoderado().equals(nomApo)){
+                return a;
+            }
+        }
+        return null;
+    }
+    
+    public Alumno buscarApellidoApoderado(String apeApo) {
+        for (int i = 0; i < listaEstudiantes.size(); i++) {
+            Alumno a = getAlumnoIndice(i);
+            if (a != null && a.getNombreApoderado().equals(apeApo)){
+                return a;
+            }
+        }
+        return null;
+    }
+    
+    public Alumno buscarTelefonoApoderado(String telfApo) {
+        for (int i = 0; i < listaEstudiantes.size(); i++) {
+            Alumno a = getAlumnoIndice(i);
+            if (a != null && a.getNombreApoderado().equals(telfApo)){
+                return a;
+            }
+        }
+        return null;
+    }
+    
+   
 
     public boolean retirarAlumno(String dni) {
         Alumno a = buscarAlumnoDni(dni);
@@ -233,6 +556,7 @@ public class SistemaNotas {
     }
     
     public void editarDatosAlumno(Scanner sc) {
+        
         System.out.print("Ingrese DNI del alumno a editar: ");
         String dni = sc.nextLine().trim();
         Alumno alumno = buscarAlumnoDni(dni);
@@ -242,87 +566,108 @@ public class SistemaNotas {
             return;
         }
 
+        
+        String telefonoo;
         List<OpcionMenu> opciones = new ArrayList<>();
         
         // --- DATOS DEL ALUMNO ---
-        opciones.add(new OpcionMenu("Actualizar Sección", (a, s) -> {
+        
+        opciones.add(new OpcionMenu("Actualizar Sección", (a, s) -> {  
             System.out.println("La sección actual: " + a.getSeccion());
-            System.out.print("Ingrese la nueva sección: "); a.setSeccion(s.nextLine());
+            String nuevaSeccion = pedirSeccion(s);
+            System.out.print("Ingrese la nueva sección: "); a.setSeccion(nuevaSeccion);
         }));
         opciones.add(new OpcionMenu("Actualizar Nivel", (a, s) -> {
             System.out.println("El nivel actual: " + a.getNivel());
-            System.out.print("Ingrese el nuevo nivel: "); a.setNivel(s.nextLine());
+            String nivel=pedirNivel(s);
+            System.out.print("Ingrese el nuevo nivel: "); a.setNivel(nivel);
         }));
         opciones.add(new OpcionMenu("Actualizar Grado", (a, s) -> {
             System.out.println("El grado actual: " + a.getGrado());
-            System.out.print("Ingrese el nuevo grado: "); a.setGrado(s.nextLine());
+            String ngrado=pedirGrado(s);
+            System.out.print("Ingrese el nuevo grado: "); a.setGrado(ngrado);
         }));
         opciones.add(new OpcionMenu("Actualizar Teléfono", (a, s) -> {
             System.out.println("El teléfono actual: " + a.getTelefono());
-            System.out.print("Ingrese el nuevo teléfono: "); a.setTelefono(s.nextLine());
+            String nuevoTelefono = this.pedirTelefono(s);
+            System.out.print("Ingrese el nuevo teléfono: "); a.setTelefono(nuevoTelefono);
         }));
         opciones.add(new OpcionMenu("Actualizar Correo", (a, s) -> {
             System.out.println("El correo actual: " + a.getCorreo());
-            System.out.print("Ingrese el nuevo correo: "); a.setCorreo(s.nextLine());
+            String nuevoCorreo= this.pedirCorreo(s);
+            System.out.print("Ingrese el nuevo correo: "); a.setCorreo(nuevoCorreo);
         }));
         opciones.add(new OpcionMenu("Actualizar Dirección", (a, s) -> {
             System.out.println("La direccion actual: " + a.getDireccion());
-            System.out.print("Ingrese la nueva dirección: "); a.setDireccion(s.nextLine());
+            String nuevaDireccion=this.pedirDireccion(s);
+            System.out.print("Ingrese la nueva dirección: "); a.setDireccion(nuevaDireccion);
         }));
 
         // --- DATOS DEL APODERADO ---
         opciones.add(new OpcionMenu("Actualizar Nombres del Apoderado", (a, s) -> {
             System.out.println("Los nombres del apoderado actual: " + a.getNombreApoderado());
-            System.out.print("Ingrese los nuevos nombres del apoderado: "); a.setNombreApoderado(s.nextLine());
+            String nuevoNombreApo=this.pedirNombreApoderado(s);
+            System.out.print("Ingrese los nuevos nombres del apoderado: "); a.setNombreApoderado(nuevoNombreApo);
         }));
         opciones.add(new OpcionMenu("Actualizar Apellidos del Apoderado", (a, s) -> {
             System.out.println("Los apellidos del apoderado actual:" + a.getApellidoApoderado());
-            System.out.print("Ingrese los nuevos apellidos del apoderado: "); a.setApellidoApoderado(s.nextLine());
+            String nuevoApeApo=this.pedirApellidoApoderado(s);
+            System.out.print("Ingrese los nuevos apellidos del apoderado: "); a.setApellidoApoderado(nuevoApeApo);
         }));
         opciones.add(new OpcionMenu("Actualizar Género del Apoderado", (a, s) -> {
             System.out.println("El genero del apoderado actual: " + a.getGeneroApoderado());
             System.out.print("ingrese el nuevo género del poderado (M/F): ");
-            String g = s.nextLine().trim(); 
+            String g = this.pedirGeneroApoderado(s);
             if (!g.isEmpty()) a.setGeneroApoderado(g.charAt(0));
         }));
         opciones.add(new OpcionMenu("Actualizar Parentesco con el Alumno", (a, s) -> {
             System.out.println("El parentesco actual: " + a.getParentescoApoderado());
-            System.out.print("Ingrese el nuevo parentesco: "); a.setParentescoApoderado(s.nextLine());
+            String nuevoPP=this.pedirParentescoApoderado(s);
+            System.out.print("Ingrese el nuevo parentesco: "); a.setParentescoApoderado(nuevoPP);
         }));
         opciones.add(new OpcionMenu("Actualizar Teléfono del Apoderado", (a, s) -> {
             System.out.println(" El teléfono del apoderado actual: " + a.getTelefonoApoderado());
-            System.out.print("Ingrese el nuevo teléfono del apoderado: "); a.setTelefonoApoderado(s.nextLine());
+            String nuevoTelfAPo=this.pedirTelefonoApoderado(s);
+            System.out.print("Ingrese el nuevo teléfono del apoderado: "); a.setTelefonoApoderado(nuevoTelfAPo);
         }));
 
         // --- NOTAS Y ASISTENCIA ---
         opciones.add(new OpcionMenu("Actualizar Nota 1", (a, s) -> {
-            System.out.println("La nota 1 actual: " + a.getNota1());
-            double n = leerDouble(s, "ingrese la nueva Nota 1: "); 
-            if (n >= 0) a.setNota1(n);
+            System.out.println("La nota 1 actual: " + a.getNota1());  
+            System.out.println("Ingrese la nueva Nota 1: ");
+            double nuevaNota = pedirNota(s);
+            a.setNota1(nuevaNota);
+
         }));
         opciones.add(new OpcionMenu("Actualizar Nota 2", (a, s) -> {
             System.out.println("La nota 2 actual: " + a.getNota2());
-            double n = leerDouble(s, "Ingrese la nueva Nota 2: "); 
-            if (n >= 0) a.setNota2(n);
+            System.out.println("Ingrese la nueva Nota 2: ");
+            double nuevaNota = pedirNota(s);
+            a.setNota2(nuevaNota);
         }));
         opciones.add(new OpcionMenu("Actualizar Nota 3", (a, s) -> {
             System.out.println("La nota actual: " + a.getNota3());
-            double n = leerDouble(s, "Ingrese la nueva Nota 3: "); 
-            if (n >= 0) a.setNota3(n);
+            System.out.println("Ingrese la nueva Nota 3: ");
+            double nuevaNota = pedirNota(s);
+            a.setNota3(nuevaNota);
         }));
         opciones.add(new OpcionMenu("Actualizar Nota 4", (a, s) -> {
             System.out.println(" La nota actual: " + a.getNota4());
-            double n = leerDouble(s, "Ingrese la nueva Nota 4: "); 
-            if (n >= 0) a.setNota4(n);
+            System.out.println("Ingrese la nueva Nota 4: ");
+            double nuevaNota = pedirNota(s);
+            a.setNota4(nuevaNota);
         }));
         opciones.add(new OpcionMenu("Actualizar Porcentaje Asistencia", (a, s) -> {
             System.out.println("El porcentaje de asistencia actual: " + a.getPorcentajeAsistencia() + "%");
-            double p = leerDouble(s, "Ingrese el nuevo porcentaje de asistencia (0-100): "); 
-            if (p >= 0) a.setPorcentajeAsistencia(p);
+            System.out.println("Ingrese el nuevo porcentaje de asistencia (0-100): "); 
+            double p = pedirAsistencia(s);
+            a.setPorcentajeAsistencia(p);
+
         }));
         opciones.add(new OpcionMenu("Actualizar Comportamiento", (a, s) -> {
             System.out.println("El comportamiento actual: " + a.getComportamiento());
-            System.out.print("Ingrese el nuevo comportamiento: "); a.setComportamiento(s.nextLine());
+            String nuevoComp= pedirComportamiento(s);
+            System.out.print("Ingrese el nuevo comportamiento:  "); a.setComportamiento(nuevoComp);
         }));
 
         // --- ESTADO ---
