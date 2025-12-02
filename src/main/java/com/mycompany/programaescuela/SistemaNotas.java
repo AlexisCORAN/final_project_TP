@@ -23,9 +23,12 @@ import java.util.regex.Matcher;
  */
 
 public class SistemaNotas {
+    
+    
 
-    private ArrayList<Alumno> listaEstudiantes;
-    private String sep = ",";
+    private final List<Alumno> alumnos = new ArrayList<>();
+    private String sep = ";";
+    
     private static final Pattern patronCorreo = Pattern.compile("^[A-Za-z0-9._%+-]+@gmail\\.com$");
     private static final Pattern patronTelefono = Pattern.compile("^9[0-9]{8}$");
     private static final Pattern patronNyA = Pattern.compile("^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+ [A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$");
@@ -71,280 +74,98 @@ public class SistemaNotas {
 
     }
 
-    private static class OpcionMenu {
-        String titulo;
-        BiConsumer<Alumno, Scanner> accion;
+    public void agregarAlumno(Alumno alumno) {
+        alumnos.add(alumno);
+    }
 
-        public OpcionMenu(String titulo, BiConsumer<Alumno, Scanner> accion) {
-            this.titulo = titulo;
-            this.accion = accion;
+    public List<Alumno> getAlumnos() {
+        return alumnos;
+    }
+
+    public Alumno buscarPorDni(String dni) {
+        for (Alumno a : alumnos) {
+            if (a.getDni().equalsIgnoreCase(dni)) {
+                return a;
+            }
+        }
+        return null;
+    }
+
+    public List<Alumno> buscarPorNombre(String nombre) {
+        List<Alumno> resultados = new ArrayList<>();
+        for (Alumno a : alumnos) {
+            if ((a.getNombres() + " " + a.getApellidos())
+                    .toLowerCase()
+                    .contains(nombre.toLowerCase())) {
+                resultados.add(a);
+            }
+        }
+        return resultados;
+    }
+
+    public void retirarAlumno(String dni) {
+        Alumno a = buscarPorDni(dni);
+        if (a != null) {
+            a.setRetirado(true);
         }
     }
 
-    public SistemaNotas() {
-        this.listaEstudiantes = new ArrayList<>();
-    }
-
-    public void registrarAlumno(Alumno nuevo) {
-        listaEstudiantes.add(nuevo);
-    }
-    
-    private static String pedirSeccion(Scanner s) {
-    String seccion;
-    do {
-        System.out.print("Ingrese la sección: ");
-        seccion = s.nextLine();
-        if (!seccion.equals("A") && !seccion.equals("B") && !seccion.equals("C")) {
-            System.out.println("Error: Ingrese A, B o C");
-        }
-    } while (!seccion.equals("A") && !seccion.equals("B") && !seccion.equals("C"));
-    return seccion;
-    }
-    
-    private static String pedirNivel(Scanner s) {
-    String nivel;
-    do {
-        System.out.print("Ingrese el nivel: ");
-        nivel = s.nextLine();
-        if (!nivel.equals("Inicial") && !nivel.equals("Primaria") && !nivel.equals("Secundaria")) {
-            System.out.println("Error: Ingrese Inicial o Primaria o Secundaria");
-        }
-    } while (!nivel.equals("Inicial") && !nivel.equals("Primaria") && !nivel.equals("Secundaria"));
-    return nivel;
-    }
-    
-    private static String pedirGrado(Scanner s) {
-    String ngrado;
-    int c=1;
-    do {
-        System.out.print("Ingrese el grado: ");
-        ngrado = s.nextLine();
-        switch(ngrado) {
-                case "Primero","Segundo","Tecero","Cuarto","Quinto","Sexto"-> c=2;          
-                default-> { System.out.println("Error: Ingrese del 1 al 6 en formato ordinal");              
-                           break;}
-            }   
-            } while (c==1);
-    return ngrado;
-    }
-    
-    private static String pedirComportamiento(Scanner s) {
-    String comp;
-    int c=1;
-    do {
-        System.out.print("Ingrese el comportamiento: ");
-        comp = s.nextLine();
-        switch(comp) {
-                case "Excelente","Bueno","Regular","Malo"-> c=2;          
-                default-> { System.out.println("Valores admitidos: Excelente, Bueno, Regular y Malo");              
-                           break;}
-            }   
-            } while (c==1);
-    return comp;
-    }
-    
-    public String pedirTelefono(Scanner s) {
-    String telefono;
-    do {
-        System.out.print("Ingrese el teléfono (9 dígitos, empezando con 9): ");
-        telefono = s.nextLine();
-
-        if (!SistemaNotas.validarTelefono(telefono)) {
-            System.out.println("Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos.");
-        } else if (this.buscarTelef(telefono) != null) {
-            System.out.println("Error: Ya existe un alumno con ese teléfono.");
-        }
-
-    } while (!SistemaNotas.validarTelefono(telefono) || this.buscarTelef(telefono) != null);
-
-    return telefono;
-    }
-  
-    public String pedirCorreo(Scanner s) {
-    String correo;
-    do{
-                        correo = s.nextLine();
-                        if (!SistemaNotas.validarCorreo(correo)) {
-                            System.out.println("Correo inválido. Debe terminar en @gmail.com");}
-                        if (this.buscarCorreo(correo) != null) {
-                            System.out.println("Error: Ya existe un alumno con ese correo");
-                        }
-                        } while (!SistemaNotas.validarCorreo(correo)||this.buscarCorreo(correo) != null);
-
-    return correo;
-    }
-
-    public String pedirDireccion(Scanner s) {
-    String direccion;
-    do{
-                        direccion = s.nextLine();
-                        if (!SistemaNotas.validarDireccion(direccion)) {
-                            System.out.println("Correo inválido. Debe terminar en @gmail.com");}
-                        if (this.buscarCorreo(direccion) != null) {
-                            System.out.println("Error: Ya existe un alumno con ese correo");
-                        }
-                        } while (!SistemaNotas.validarDireccion(direccion)||this.buscarCorreo(direccion) != null);
-
-    return direccion;
-    }
-   
-    public String pedirNombreApoderado(Scanner s) {
-    String nomApo;
-    do{
-                        nomApo = s.nextLine();
-                        if (!SistemaNotas.validarNyA(nomApo)) {
-                            System.out.println("Nombres incorrectos (Ejemplo correcto: Juan Gilbert)");}
-                        if (this.buscarNyA(nomApo) != null) {
-                            System.out.println("Error: Ya existe un apoderado/alumno con ese nombre.");}
-                        
-                        } while (!SistemaNotas.validarNyA(nomApo)||this.buscarNyA(nomApo) != null);
-
-    return nomApo;
-    }
-    
-    public String pedirApellidoApoderado(Scanner s) {
-    String apeApo;
-    do{
-                        apeApo = s.nextLine();
-                        if (!SistemaNotas.validarNyA(apeApo)) {
-                            System.out.println("Apellidos incorrectos (Ejemplo correcto: Alva León)");}
-                        if (this.buscarNyA(apeApo) != null) {
-                            System.out.println("Error: Ya existe un apoderado/alumno con ese apellido.");}
-                        
-                        } while (!SistemaNotas.validarNyA(apeApo)||this.buscarNyA(apeApo) != null);
-
-    return apeApo;
-    }
-    
-    public String pedirGeneroApoderado(Scanner s) {
-    String apeApo;
-    do{
-                        apeApo = s.nextLine();
-                        if (!SistemaNotas.validarNyA(apeApo)) {
-                            System.out.println("Apellidos incorrectos (Ejemplo correcto: Alva León)");}
-                        if (this.buscarNyA(apeApo) != null) {
-                            System.out.println("Error: Ya existe un apoderado/alumno con ese apellido.");}
-                        
-                        } while (!SistemaNotas.validarNyA(apeApo)||this.buscarNyA(apeApo) != null);
-
-    return apeApo;
-    }
-    
-    private static String pedirParentescoApoderado(Scanner s) {
-    String parenApo;
-    int d=1;
-    do {
+    public boolean cargarDesdeCSV(String nombreArchivo) {
+        alumnos.clear();
         
-        parenApo = s.nextLine();
-        switch(parenApo) {
-                case "Tío","Tía","Padre","Madre","Abuelo","Abuela"-> d=2;          
-                default-> { System.out.println("Error: Ingrese del 1 al 6 en formato ordinal");              
-                           break;}
-            }   
-            } while (d==1);
-    return parenApo;
-    }
-    
-    public String pedirTelefonoApoderado(Scanner s) {
-    String telefonoApo;
-    do {
-        System.out.print("Ingrese el teléfono (9 dígitos, empezando con 9): ");
-        telefonoApo = s.nextLine();
-
-        if (!SistemaNotas.validarTelefono(telefonoApo)) {
-            System.out.println("Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos.");
-        } else if (this.buscarTelef(telefonoApo) != null) {
-            System.out.println("Error: Ya existe un alumno con ese teléfono.");
-        }
-
-    } while (!SistemaNotas.validarTelefono(telefonoApo) || this.buscarTelef(telefonoApo) != null);
-
-    return telefonoApo;
-    }
-    
-    private static double pedirNota(Scanner s) {
-    String notaa;
-    double nota=-1;
-    
-    do {
-            notaa=s.nextLine();
-            if (!SistemaNotas.validarNota(notaa)) {
-                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
-                        
-                        } while (!SistemaNotas.validarNota(notaa));          
-            
-    nota = Double.parseDouble(notaa);
-    return nota;
-    }
-    
-    
-    private static double pedirAsistencia(Scanner s) {
-    String entrade;
-    double porcentaje=-1;
-    
-    do {
-            entrade=s.nextLine();
-            if (!validarAsistencia(entrade)) {
-                            System.out.println("Nota inválida. Debe estar entre 0 a 20 y tener un sólo decimal (y que esté separado por un punto)");}
-                        
-                        } while (!SistemaNotas.validarNota(entrade));          
-            
-    porcentaje = Double.parseDouble(entrade);
-    return porcentaje;
-    }
-    
-    public java.util.ArrayList<Alumno> getLista() {
-        return this.listaEstudiantes;
-    }
-
-    private Alumno getAlumnoIndice(int index) {
-        if (index < 0 || index >= listaEstudiantes.size()) return null;
-        return listaEstudiantes.get(index);
-    }
-
-    public boolean cargaDatosArchivo(String ruta) {
-        listaEstudiantes.clear();
-        File archivo = new File(ruta);
+        File archivo = new File(nombreArchivo);
 
         if (!archivo.exists()) return false;
 
         try {
-            byte[] bytes = Files.readAllBytes(Paths.get(ruta));
+            
+            byte[] bytes = Files.readAllBytes(Paths.get(nombreArchivo));
+            
             boolean tieneBomUtf8 = bytes.length >= 3 &&
                     (bytes[0] & 0xFF) == 0xEF &&
                     (bytes[1] & 0xFF) == 0xBB &&
                     (bytes[2] & 0xFF) == 0xBF;
 
+            
             java.nio.charset.Charset charsetSeleccionado = StandardCharsets.UTF_8;
 
+            
             if (!tieneBomUtf8) {
-                String sUtf8 = new String(bytes, StandardCharsets.UTF_8);
-                String sWin = new String(bytes, java.nio.charset.Charset.forName("windows-1252"));
-                if (!sUtf8.matches(".*[áéíóúÁÉÍÓÚñÑ].*") && sWin.matches(".*[áéíóúÁÉÍÓÚñÑ].*")) {
-                    charsetSeleccionado = java.nio.charset.Charset.forName("windows-1252");
-                }
+                
+                charsetSeleccionado = java.nio.charset.Charset.forName("windows-1252");
             }
 
+            
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(new ByteArrayInputStream(bytes), charsetSeleccionado))) {
 
                 String linea = br.readLine();
 
-                if (linea != null) {
-                    if (linea.startsWith("sep=") || linea.startsWith("SEP=")) {
-                        String posible = linea.length() > 4 ? linea.substring(4) : ",";
-                        this.sep = posible;
-                        
-                        linea = br.readLine();
-                    } else {
-                        int cuentaPuntoComa = linea.length() - linea.replace(";", "").length();
-                        int cuentaComa = linea.length() - linea.replace(",", "").length();
-                        this.sep = (cuentaPuntoComa > cuentaComa) ? ";" : ",";
-                       
-                    }
+          
+                if (linea == null) return true;
 
-                    while ((linea = br.readLine()) != null) {
-                        if (!linea.trim().isEmpty()) procesarLineaCSV(linea);
+               
+                if (linea.startsWith("sep=") || linea.startsWith("SEP=")) {
+                    this.sep = linea.substring(4).trim(); 
+                    linea = br.readLine(); 
+                } else {
+                    
+                    int cuentaPuntoComa = linea.length() - linea.replace(";", "").length();
+                    int cuentaComa = linea.length() - linea.replace(",", "").length();
+                    
+                    this.sep = (cuentaPuntoComa > cuentaComa) ? ";" : ",";
+                }
+                
+                System.out.println("[Sistema] Separador detectado: " + this.sep);
+
+   
+                while ((linea = br.readLine()) != null) {
+                    if (!linea.trim().isEmpty()) {
+                        Alumno a = procesarLineaCSV(linea);
+                            if (a != null) {
+                               alumnos.add(a);             
+                            }
+                        
                     }
                 }
             }
@@ -356,414 +177,218 @@ public class SistemaNotas {
         }
     }
 
+    private Alumno procesarLineaCSV(String linea) {
 
-    public void procesarLineaCSV(String linea) {
-        try {
-            String[] datos = linea.split(Pattern.quote(this.sep), -1);
+        String[] c = linea.split("\t|,", -1);
 
-            if (datos.length < 21) return;
+        if (c.length < 24) return null; // línea incompleta
 
-            String dni = datos[0].trim();
-            String nombres = datos[1].trim();
-            String apellidos = datos[2].trim();
-            char genero = datos[3].trim().charAt(0);
-            String seccion = datos[4].trim();
-            String nivel = datos[5].trim();
-            String grado = datos[6].trim();
-            String telefono = datos[7].trim();
-            String correo = datos[9].trim();
-            String direccion = datos[10].trim();
-            String nombreApoderado = datos[12].trim();
-            String apellidoApoderado = datos[13].trim();
-            char generoApoderado = datos[14].charAt(0);
-            String parentescoApoderado = datos[15].trim();
-            String telefonoApoderado = datos[16].trim();
-        
-   
-            double n1 = parsearDouble(datos[17]);
-            double n2 = parsearDouble(datos[18]);
-            double n3 = parsearDouble(datos[19]);
-            double n4 = parsearDouble(datos[20]);
+        // -------- Datos del alumno --------
+        String dni = c[0];
+        String nombres = c[1];
+        String apellidos = c[2];
+        char genero = c[3].charAt(0);
 
-            double porcentajeAsistencia = parsearDouble(datos[21]);
-            String comportamiento = datos[22].trim();
-            
-            String retirado = (datos.length > 23) ? datos[23].trim() : "No";
-            
-            
-            Alumno nuevo = new Alumno(
-                dni,
-                nombres,
-                apellidos,
-                genero,
-                seccion,
-                nivel,
-                grado,
-                telefono,
-                correo,
-                direccion,
-                nombreApoderado,
-                apellidoApoderado,
-                generoApoderado,
-                parentescoApoderado,
-                telefonoApoderado,
-                n1,
-                n2,
-                n3,
-                n4,
-                retirado,
-                porcentajeAsistencia,
-                comportamiento) ;
-            registrarAlumno(nuevo);
+        // -------- Grado --------
+        String seccion = c[4];
+        String nivel = c[5];
+        int gradoNum = convertirGrado(c[6]);
 
+        Grado grado = new Grado(nivel, gradoNum, seccion);
 
-        } catch (Exception e) {
-            System.out.println("Error procesando línea: " + e.getMessage());
+        // -------- Contacto alumno --------
+        String telefono = c[7];
+        String correo = c[9];
+        String direccion = c[10];
+
+        // -------- Apoderado --------
+        String nomApo = c[12];
+        String apeApo = c[13];
+        char genApo = c[14].charAt(0);
+        String telApo = c[16];
+
+        Apoderado apoderado = new Apoderado("-", nomApo, apeApo, genApo, telApo);
+
+        // -------- Registro académico --------
+        double n1 = Double.parseDouble(c[17]);
+        double n2 = Double.parseDouble(c[18]);
+        double n3 = Double.parseDouble(c[19]);
+        double n4 = Double.parseDouble(c[20]);
+        double asistencia = Double.parseDouble(c[21]);
+        String comportamiento = c[22];
+
+        RegistroAcademico registro = new RegistroAcademico(
+                n1, n2, n3, n4, asistencia, comportamiento
+        );
+
+        // -------- Retirado --------
+        boolean retirado = c[23].trim().equalsIgnoreCase("Sí");
+
+        // -------- Crear alumno --------
+        Alumno alumno = new Alumno(
+                dni, nombres, apellidos, genero,
+                telefono, correo, direccion,
+                apoderado, grado, registro
+        );
+
+        alumno.setRetirado(retirado);
+
+        return alumno;
+    }
+    
+    public int convertirGrado(String valor) {
+    valor = valor.trim().toLowerCase();
+        switch (valor) {
+            case "3 años", "primero" -> {
+                return 1;
+            }
+            case "4 años", "segundo" -> {
+                return 2;
+            }
+            case "5 años", "tercero" -> {
+                return 3;
+            }
+            case "cuarto" -> {
+                return 4;
+            }
+            case "quinto" -> {
+                return 5;
+            }
+            case "sexto" -> {
+                return 6;
+            }
+            default -> throw new IllegalArgumentException("Grado inválido: " + valor);
         }
     }
     
-    private double parsearDouble(String val) {
-        if (val == null) return 0.0;
-        String t = val.replace("\"", "").trim();
-        if (t.isEmpty()) return 0.0;
-        if (t.contains(",") && !t.contains(".")) t = t.replace(',', '.');
-        try { return Double.parseDouble(t); } catch (Exception e) { return 0.0; }
+    int convertirGradoInterno(String valor) {
+        return convertirGrado(valor); // llama al método privado existente
     }
 
-    public void listarPromediosFiltro(int opcionFiltro) {
-        if (listaEstudiantes.isEmpty()) {
-            System.out.println("No hay alumnos registrados.");
-            return;
-        }
+    public void guardarCSV(String archivo) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo))) {
 
-        String titulo = switch (opcionFiltro) {
-            case 2 -> "SOLO ALUMNOS ACTIVOS";
-            case 3 -> "SOLO ALUMNOS RETIRADOS";
-            default -> "TODOS LOS ALUMNOS";
-        };
-
-        System.out.println("\n--- " + titulo + " ---");
-
-        boolean hayResultados = false;
-
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-
-            Alumno alum = getAlumnoIndice(i);
-
-            if (alum != null && alumnoCumpleFiltro(alum, opcionFiltro)) {
-                System.out.println(alum);
-                hayResultados = true;
-            }
-        }
-
-        if (!hayResultados) {
-            System.out.println("No hay alumnos en esta categoría.");
-        }
-    }
-
-    private boolean alumnoCumpleFiltro(Alumno alumno, int opcionFiltro) {
-        return opcionFiltro == 1 ||
-               (opcionFiltro == 2 && alumno.estaActivo()) ||
-               (opcionFiltro == 3 && !alumno.estaActivo());
-    }
-
-    public Alumno buscarAlumnoDni(String dni) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getDni().equals(dni)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    public Alumno buscarNyA(String nombre) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getNombre().equals(nombre)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    public Alumno buscarApellido(String apellido) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getApellido().equals(apellido)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    public Alumno buscarCorreo(String correo) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getCorreo().equals(correo)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    public Alumno buscarTelef(String telefono) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getTelefono().equals(telefono)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    public Alumno buscarNombreApoderado(String nomApo) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getNombreApoderado().equals(nomApo)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    public Alumno buscarApellidoApoderado(String apeApo) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getNombreApoderado().equals(apeApo)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    public Alumno buscarTelefonoApoderado(String telfApo) {
-        for (int i = 0; i < listaEstudiantes.size(); i++) {
-            Alumno a = getAlumnoIndice(i);
-            if (a != null && a.getNombreApoderado().equals(telfApo)){
-                return a;
-            }
-        }
-        return null;
-    }
-    
-   
-
-    public boolean retirarAlumno(String dni) {
-        Alumno a = buscarAlumnoDni(dni);
-        if (a == null) return false;
-        if (!a.estaActivo()) return false; // ya retirado
-        a.retirar();
-        return true;
-    }
-    
-    public void editarDatosAlumno(Scanner sc) {
-        
-        System.out.print("Ingrese DNI del alumno a editar: ");
-        String dni = sc.nextLine().trim();
-        
-        // Usamos tu validador aquí también
-        if (!validarDNI(dni)) {
-            System.out.println("Error: DNI inválido.");
-            return;
-        }
-
-        Alumno alumno = buscarAlumnoDni(dni);
-
-        if (alumno == null) {
-            System.out.println("Error: Alumno no encontrado.");
-            return;
-        }
-
-        List<OpcionMenu> opciones = new ArrayList<>();
-        
-        // --- DATOS DEL ALUMNO (Usando tus métodos validadores existentes) ---
-        
-        opciones.add(new OpcionMenu("Actualizar Sección", (a, s) -> {  
-            System.out.println("Actual: " + a.getSeccion());
-            String nueva = pedirSeccion(s); // Reutiliza tu método privado
-            a.setSeccion(nueva);
-        }));
-
-        opciones.add(new OpcionMenu("Actualizar Nivel", (a, s) -> {
-            System.out.println("Actual: " + a.getNivel());
-            String nuevo = pedirNivel(s); // Reutiliza
-            a.setNivel(nuevo);
-        }));
-
-        opciones.add(new OpcionMenu("Actualizar Grado", (a, s) -> {
-            System.out.println("Actual: " + a.getGrado());
-            String nuevo = pedirGrado(s); // Reutiliza
-            a.setGrado(nuevo);
-        }));
-
-        opciones.add(new OpcionMenu("Actualizar Teléfono", (a, s) -> {
-            System.out.println("Actual: " + a.getTelefono());
-            String nuevo = this.pedirTelefono(s); // Reutiliza tu método con validación regex
-            a.setTelefono(nuevo);
-        }));
-
-        opciones.add(new OpcionMenu("Actualizar Correo", (a, s) -> {
-            System.out.println("Actual: " + a.getCorreo());
-            String nuevo = this.pedirCorreo(s); // Reutiliza validación @gmail.com
-            a.setCorreo(nuevo);
-        }));
-
-        opciones.add(new OpcionMenu("Actualizar Dirección", (a, s) -> {
-            System.out.println("Actual: " + a.getDireccion());
-            String nuevo = this.pedirDireccion(s); // Reutiliza validación regex dirección
-            a.setDireccion(nuevo);
-        }));
-
-        // --- DATOS DEL APODERADO ---
-        
-        opciones.add(new OpcionMenu("Actualizar Nombre Apoderado", (a, s) -> {
-            System.out.println("Actual: " + a.getNombreApoderado());
-            String nuevo = this.pedirNombreApoderado(s); 
-            a.setNombreApoderado(nuevo);
-        }));
-
-        opciones.add(new OpcionMenu("Actualizar Apellido Apoderado", (a, s) -> {
-            System.out.println("Actual: " + a.getApellidoApoderado());
-            String nuevo = this.pedirApellidoApoderado(s);
-            a.setApellidoApoderado(nuevo);
-        }));
-        
-        // ... Agrega los demás de apoderado siguiendo el mismo patrón ...
-
-        // --- NOTAS Y ASISTENCIA ---
-        
-        opciones.add(new OpcionMenu("Actualizar Nota 1", (a, s) -> {
-            System.out.println("Actual: " + a.getNota1());
-            System.out.println("Ingrese nueva Nota 1:");
-            double n = pedirNota(s); // Reutiliza validación 0-20
-            a.setNota1(n);
-        }));
-        
-        // ... Repetir para notas 2, 3, 4 ...
-
-        opciones.add(new OpcionMenu("Actualizar Asistencia", (a, s) -> {
-            System.out.println("Actual: " + a.getPorcentajeAsistencia() + "%");
-            System.out.println("Ingrese nueva asistencia:");
-            double asis = pedirAsistencia(s); // Reutiliza validación 0-100
-            a.setPorcentajeAsistencia(asis);
-        }));
-
-        opciones.add(new OpcionMenu("Actualizar Comportamiento", (a, s) -> {
-            System.out.println("Actual: " + a.getComportamiento());
-            String comp = pedirComportamiento(s); // Reutiliza validación (Bueno/Malo...)
-            a.setComportamiento(comp);
-        }));
-
-        // --- ESTADO ---
-        opciones.add(new OpcionMenu("Retirar/Reincorporar", (a, s) -> {
-             if (a.estaRetirado()) { 
-                 a.reintegrar(); 
-                 System.out.println(">> Alumno reintegrado."); 
-             } else { 
-                 a.retirar(); 
-                 System.out.println(">> Alumno retirado."); 
-             }
-        }));
-        
-        
-        // --- BUCLE DEL MENÚ ---
-        while (true) {
-            System.out.println("\n--- EDITANDO A: " + alumno.getNombreCompleto() + " ---");
-            
-            for (int i = 0; i < opciones.size(); i++) {
-                System.out.println((i + 1) + ". " + opciones.get(i).titulo);
-            }
-            System.out.println((opciones.size() + 1) + ". Volver");
-
-            int seleccion = (int) leerDouble(sc, "Elija una opción: "); 
-
-            if (seleccion == opciones.size() + 1) break;
-            
-            if (seleccion > 0 && seleccion <= opciones.size()) {
-                // Ejecutamos la acción seleccionada
-                opciones.get(seleccion - 1).accion.accept(alumno, sc);
-                System.out.println(">> Cambio realizado.");
-            } else {
-                System.out.println("Opción inválida.");
-            }
-        }
-    }
-
-    private double leerDouble(Scanner sc, String mensaje) {
-        System.out.print(mensaje);
-        try {
-            String val = sc.nextLine().replace(",", ".");
-            return val.isEmpty() ? -1 : Double.parseDouble(val);
-        } catch (NumberFormatException e) {
-            System.out.println("Valor numérico inválido.");
-            return -1;
-        }
-    }
-    
-    public void exportarCSV(String ruta) {
-
-        if (listaEstudiantes.isEmpty()) {
-            System.out.println("No hay alumnos para exportar.");
-            return;
-        }
-
-        try (FileOutputStream fos = new FileOutputStream(ruta);
-             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-
-            fos.write(0xEF);
-            fos.write(0xBB);
-            fos.write(0xBF);
-
-
-            bw.write("sep=" + this.sep);
-            bw.newLine();
-
-
-            String cabecera = String.join(this.sep, 
-                "DNI", 
-                "Nombres", 
-                "Apellidos", 
-                "Genero", 
-                "Seccion",
-                "Nivel", 
-                "Grado",
-                "Telefono", 
-                "Correo", 
-                "Direccion", 
-                "NombreApoderado",    
-                "ApellidoApoderado",  
-                "GeneroApoderado",  
-                "Parentesco",         
-                "TelefonoApoderado",  
-                "Nota1", 
-                "Nota2", 
-                "Nota3", 
-                "Nota4", 
-                "Promedio", 
-                "Asistencia %",       
-                "Comportamiento", 
-                "Estado Academico", 
-                "Retirado"
-            );
-            
-            bw.write(cabecera);
-            bw.newLine();
-
-            for (int i = 0; i < listaEstudiantes.size(); i++) {
-                Alumno a = getAlumnoIndice(i);
-        
-                String linea = a.generarLineaCSV(this.sep);
-
-                bw.write(linea);
+            for (Alumno a : alumnos) {
+                bw.write(convertirCSV(a));
                 bw.newLine();
             }
 
-            System.out.println("Archivo exportado correctamente a: " + ruta);
-            System.out.println("Separador usado: [" + this.sep + "]");
-
         } catch (IOException e) {
-            System.out.println("Error al guardar archivo: " + e.getMessage());
+            e.printStackTrace();
         }
     }
+
+    private String convertirCSV(Alumno a) {
+        RegistroAcademico r = a.getRegistroAcademico();
+        Apoderado p = a.getApoderado();
+        Grado g = a.getGrado();
+
+        return a.getDni() + "," +
+                a.getNombres() + "," +
+                a.getApellidos() + "," +
+                a.getGenero() + "," +
+                a.getTelefono() + "," +
+                a.getCorreo() + "," +
+                a.getDireccion() + "," +
+                p.getDni() + "," +
+                p.getNombre() + "," +
+                p.getApellido() + "," +
+                p.getGenero() + "," +
+                p.getTelefono() + "," +
+                g.getNivel() + "," +
+                g.getGrado() + "," +
+                g.getSeccion() + "," +
+                r.getNota1() + "," +
+                r.getNota2() + "," +
+                r.getNota3() + "," +
+                r.getNota4() + "," +
+                r.getAsistencia() + "," +
+                r.getComportamiento() + "," +
+                a.isRetirado();
+    }
+    
+    public String generarReporteEstadisticas() {
+        if (alumnos.isEmpty()) return "No hay datos para analizar.";
+
+        int total = 0, aprobados = 0, desaprobados = 0, retirados = 0;
+        double sumaPromedios = 0;
+        
+        // Variables para Rangos
+        int rangoMalo = 0;      // 0 - 10.4
+        int rangoRegular = 0;   // 10.5 - 14
+        int rangoBueno = 0;     // 15 - 17
+        int rangoExcel = 0;     // 18 - 20
+
+        // Variables para Género
+        double sumaM = 0, sumaF = 0;
+        int countM = 0, countF = 0;
+
+        // Variables para Ranking
+        Alumno mejorAlumno = null;
+        Alumno peorAlumno = null;
+
+        for (Alumno a : alumnos) {
+            if (a.isRetirado()) {
+                retirados++;
+                continue; 
+            }
+
+            total++;
+            double p = a.getRegistroAcademico().getPromedio();
+            sumaPromedios += p;
+
+            if (p >= 12) {
+                aprobados++;
+            } else {
+                desaprobados++;
+            }
+
+            if (p < 10.5) rangoMalo++;
+            else if (p <= 14) rangoRegular++;
+            else if (p <= 17) rangoBueno++;
+            else rangoExcel++;
+
+            
+            if (a.getGenero() == 'M') { sumaM += p; countM++; }
+            else if (a.getGenero() == 'F') { sumaF += p; countF++; }
+
+ 
+            if (mejorAlumno == null || p > mejorAlumno.getRegistroAcademico().getPromedio()) mejorAlumno = a;
+            if (peorAlumno == null || p < peorAlumno.getRegistroAcademico().getPromedio()) peorAlumno = a;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("========== ANALÍTICA ACADÉMICA ==========\n\n");
+        
+        sb.append("--- 1. RESUMEN GENERAL ---\n");
+        sb.append("Total Activos:      ").append(total).append("\n");
+        sb.append("Total Retirados:    ").append(retirados).append("\n");
+        sb.append(String.format("PROMEDIO DEL SALÓN: %.2f\n", (total > 0 ? sumaPromedios/total : 0)));
+        sb.append("Aprobados:          ").append(aprobados).append(" (").append(total > 0 ? (aprobados*100/total) : 0).append("%)\n");
+        sb.append("Desaprobados:       ").append(desaprobados).append(" (").append(total > 0 ? (desaprobados*100/total) : 0).append("%)\n\n");
+
+        sb.append("--- 2. DISTRIBUCIÓN DE RENDIMIENTO ---\n");
+        sb.append("Excelencia [18-20]: ").append(rangoExcel).append("\n");
+        sb.append("Bueno      [15-17]: ").append(rangoBueno).append("\n");
+        sb.append("Regular    [11-14]: ").append(rangoRegular).append("\n");
+        sb.append("Crítico    [00-10]: ").append(rangoMalo).append("\n\n");
+
+        sb.append("--- 3. RANKING ---\n");
+        if (mejorAlumno != null) {
+            sb.append(" 1er Puesto: ").append(mejorAlumno.getNombres())
+              .append(" [").append(String.format("%.2f", mejorAlumno.getRegistroAcademico().getPromedio())).append("]\n");
+        }
+        if (peorAlumno != null) {
+            sb.append("️Último Puesto: ").append(peorAlumno.getNombres())
+              .append(" [").append(String.format("%.2f", peorAlumno.getRegistroAcademico().getPromedio())).append("]\n");
+        }
+        sb.append("\n");
+
+        sb.append("--- 4. ANÁLISIS DEMOGRÁFICO (Género) ---\n");
+        sb.append(String.format("Promedio Hombres (%d): %.2f\n", countM, (countM>0 ? sumaM/countM : 0)));
+        sb.append(String.format("Promedio Mujeres (%d): %.2f\n", countF, (countF>0 ? sumaF/countF : 0)));
+
+        return sb.toString();
+    }
+
 }

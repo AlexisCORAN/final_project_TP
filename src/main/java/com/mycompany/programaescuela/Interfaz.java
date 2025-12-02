@@ -4,6 +4,8 @@
  */
 package com.mycompany.programaescuela;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Alexis
@@ -12,8 +14,7 @@ public class Interfaz extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Interfaz.class.getName());
     
-    // --- VARIABLES NECESARIAS ---
-    private SistemaNotas sistema;
+    private SistemaController controller;
     private javax.swing.table.DefaultTableModel modeloTabla;
 
     public Interfaz() {
@@ -21,24 +22,24 @@ public class Interfaz extends javax.swing.JFrame {
 
         this.setTitle("Sistema de Gestión Escolar");
         
-        // Inicializamos el sistema
-        sistema = new SistemaNotas();
+        controller = new SistemaController();
+
+        java.io.File f = new java.io.File("base_de_datos2.csv");
+        System.out.println("Ruta absoluta esperada: " + f.getAbsolutePath());
         
-        // Carga automática
-        if (sistema.cargaDatosArchivo("base_de_datos2.csv")) {
+        if (controller.cargarDatos("base_de_datos2.csv")) {
             javax.swing.JOptionPane.showMessageDialog(this, "Base de datos cargada correctamente.");
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, "No se encontró base_de_datos2.csv, se iniciará vacío.");
         }
         
-        // Configuramos la tabla y la llenamos
+       
         configurarTabla();
-        actualizarTabla(1); // 1 = Mostrar todos
+        actualizarTabla(1);
         
-        
+        this.setLocationRelativeTo(null); // Centrar ventana
     }
 
-    // --- AGREGAR ESTOS MÉTODOS AL FINAL DE TU CLASE ---
 
     private void configurarTabla() {
         String[] columnas = {"DNI", "Nombres", "Apellidos", "Promedio", "Estado", "Situación"};
@@ -51,23 +52,28 @@ public class Interfaz extends javax.swing.JFrame {
 
     private void actualizarTabla(int filtro) {
         modeloTabla.setRowCount(0);
-        java.util.ArrayList<Alumno> lista = sistema.getLista();
+        
+        java.util.List<Alumno> lista = controller.obtenerTodosAlumnos();
         
         if (lista == null) return;
 
         for (Alumno a : lista) {
             boolean mostrar = (filtro == 1) || 
-                              (filtro == 2 && a.estaActivo()) || 
-                              (filtro == 3 && !a.estaActivo());
+                              (filtro == 2 && !a.isRetirado()) || 
+                              (filtro == 3 && a.isRetirado());
             
             if (mostrar) {
+                double promedio = (a.getRegistroAcademico() != null) ? a.getRegistroAcademico().getPromedio() : 0.0;
+                String estado = (promedio >= 11.5) ? "APROBADO" : "DESAPROBADO";
+                String situacion = a.isRetirado() ? "RETIRADO" : "ACTIVO";
+
                 Object[] fila = {
                     a.getDni(),
-                    a.getNombre(),
-                    a.getApellido(),
-                    String.format("%.2f", a.getPromedio()),
-                    a.getEstadoAcademico(),
-                    a.getSituacion()
+                    a.getNombres(),
+                    a.getApellidos(),
+                    String.format("%.2f", promedio),
+                    estado,
+                    situacion
                 };
                 modeloTabla.addRow(fila);
             }
@@ -205,7 +211,7 @@ public class Interfaz extends javax.swing.JFrame {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnRefresar, javax.swing.GroupLayout.DEFAULT_SIZE, 879, Short.MAX_VALUE)
+                    .addComponent(btnRefresar, javax.swing.GroupLayout.DEFAULT_SIZE, 914, Short.MAX_VALUE)
                     .addComponent(cboFiltro, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -247,14 +253,6 @@ public class Interfaz extends javax.swing.JFrame {
         JLabel2.setText("  Genero del Apoderado");
 
         JLabel3.setText("  Teléfono del Apoderado");
-
-        txtNombreApo.setText("jTextField17");
-
-        txtApellidoApo.setText("jTextField18");
-
-        txtGeneroApo.setText("jTextField19");
-
-        txtTelefonoApo.setText("jTextField20");
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -314,22 +312,11 @@ public class Interfaz extends javax.swing.JFrame {
 
         JLabel6.setText("   Genero");
 
-        txtDni.setText("jTextField10");
         txtDni.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDniActionPerformed(evt);
             }
         });
-
-        txtNombres.setText("jTextField11");
-
-        txtApellidos.setText("jTextField12");
-
-        txtCorreo.setText("jTextField13");
-
-        txtTelefono.setText("jTextField14");
-
-        txtDireccion.setText("jTextField16");
 
         cboxGenero.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Masculino", "Femenino" }));
         cboxGenero.addActionListener(new java.awt.event.ActionListener() {
@@ -447,12 +434,6 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
-        txtAsistencia.setText("jTextField21");
-
-        txtComportamiento.setText("jTextField22");
-
-        jTextField23.setText("jTextField23");
-
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
@@ -555,7 +536,7 @@ public class Interfaz extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(14, 12, 15, 0);
         jPanel2.add(btnNuevo, gridBagConstraints);
 
-        btnGuardar.setText("Registrar");
+        btnGuardar.setText("Registrar/Actualizar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
@@ -603,7 +584,7 @@ public class Interfaz extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 885, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -708,13 +689,28 @@ public class Interfaz extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRiesgoActionPerformed
 
     private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
-        sistema.exportarCSV("Reporte_Actualizado.csv");
-        javax.swing.JOptionPane.showMessageDialog(this, "Reporte exportado exitosamente.");
+                                         
+        if (controller.guardarDatos("Reporte_Actualizado.csv")) {
+             javax.swing.JOptionPane.showMessageDialog(this, "Reporte exportado exitosamente.");
+        } else {
+             javax.swing.JOptionPane.showMessageDialog(this, "Error al exportar.");
+        }
     }//GEN-LAST:event_btnExportarActionPerformed
 
     private void btnEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadisticasActionPerformed
-        // TODO add your handling code here:
-        javax.swing.JOptionPane.showMessageDialog(this, "Las estadísticas se muestran en la consola de NetBeans (Output).");
+        // TODO add your handling code here:                                              
+        
+        String reporte = controller.obtenerReporteEstadisticas();
+        
+        
+        javax.swing.JTextArea textArea = new javax.swing.JTextArea(reporte);
+        textArea.setEditable(false);
+        textArea.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 12)); // Fuente alineada
+        
+        javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(textArea);
+        scroll.setPreferredSize(new java.awt.Dimension(400, 500));
+        
+        JOptionPane.showMessageDialog(this, scroll, "Dashboard Académico", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnEstadisticasActionPerformed
 
     private void cboFiltroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboFiltroActionPerformed
@@ -741,32 +737,45 @@ public class Interfaz extends javax.swing.JFrame {
     }//GEN-LAST:event_cboxGeneroActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-                                        
+                                                                                
         String dni = txtDni.getText().trim();
-        Alumno a = sistema.buscarAlumnoDni(dni);
+        if (dni.isEmpty()) return;
+
+        Alumno a = controller.buscarAlumnoPorDni(dni);
         
         if (a != null) {
+            // 1. Datos Personales
             txtDni.setText(a.getDni());
             txtDni.setEditable(false); // Bloquear DNI
-            txtNombres.setText(a.getNombre());
-            txtApellidos.setText(a.getApellido());
+            txtNombres.setText(a.getNombres());
+            txtApellidos.setText(a.getApellidos());
             txtCorreo.setText(a.getCorreo());
             txtTelefono.setText(a.getTelefono());
             txtDireccion.setText(a.getDireccion());
             
-            // Apoderado
-            txtNombreApo.setText(a.getNombreApoderado());
-            txtApellidoApo.setText(a.getApellidoApoderado());
-            txtGeneroApo.setText(String.valueOf(a.getGeneroApoderado()));
-            txtTelefonoApo.setText(a.getTelefonoApoderado());
-            
-            // Notas
-            txtNota1.setText(String.valueOf(a.getNota1()));
-            txtNota2.setText(String.valueOf(a.getNota2()));
-            txtNota3.setText(String.valueOf(a.getNota3()));
-            txtNota4.setText(String.valueOf(a.getNota4()));
-            txtAsistencia.setText(String.valueOf(a.getPorcentajeAsistencia()));
-            txtComportamiento.setText(a.getComportamiento());
+            // Género 
+            if (a.getGenero() == 'F') cboxGenero.setSelectedIndex(1); 
+            else cboxGenero.setSelectedIndex(0);
+
+            // 2. Datos Apoderado 
+            if (a.getApoderado() != null) {
+                txtNombreApo.setText(a.getApoderado().getNombre());
+                txtApellidoApo.setText(a.getApoderado().getApellido());
+                txtGeneroApo.setText(String.valueOf(a.getApoderado().getGenero()));
+                txtTelefonoApo.setText(a.getApoderado().getTelefono());
+            }
+
+            // 3. Datos Académicos 
+            if (a.getRegistroAcademico() != null) {
+                RegistroAcademico r = a.getRegistroAcademico();
+                txtNota1.setText(String.valueOf(r.getNota1()));
+                txtNota2.setText(String.valueOf(r.getNota2()));
+                txtNota3.setText(String.valueOf(r.getNota3()));
+                txtNota4.setText(String.valueOf(r.getNota4()));
+                txtAsistencia.setText(String.valueOf(r.getAsistencia()));
+                txtComportamiento.setText(r.getComportamiento());
+                txtPromedio.setText(String.format("%.2f", r.getPromedio()));
+            }
             
             javax.swing.JOptionPane.showMessageDialog(this, "Alumno encontrado.");
         } else {
@@ -776,25 +785,56 @@ public class Interfaz extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // TODO add your handling code here:                                          
+        // TODO add your handling code here:                                                                                                                             
         try {
-            // 1. Recoger Datos Obligatorios
+            // RECOGER DATOS
             String dni = txtDni.getText().trim();
             String nom = txtNombres.getText().trim();
             String ape = txtApellidos.getText().trim();
+            String cor = txtCorreo.getText().trim();
+            String tel = txtTelefono.getText().trim();
             
-            if (dni.isEmpty() || nom.isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "DNI y Nombre son obligatorios.");
+            // --- 2. VALIDACIONES OBLIGATORIAS
+            if (dni.isEmpty() || nom.isEmpty() || ape.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "DNI, Nombre y Apellido son obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // 2. Recoger Resto de Datos
-            String cor = txtCorreo.getText(); String tel = txtTelefono.getText();
+            // VALIDACIONES DE FORMATO
+            
+            // Validar DNI (8 dígitos)
+            if (!SistemaNotas.validarDNI(dni)) {
+                JOptionPane.showMessageDialog(this, "DNI inválido. Debe tener 8 dígitos.", "Error de Formato", JOptionPane.WARNING_MESSAGE);
+                return; // Detenemos el guardado
+            }
+            
+            // Validar Teléfono 
+            // Solo validamos si escribió algo (si lo dejó vacío, lo permitimos)
+            if (!tel.isEmpty() && !SistemaNotas.validarTelefono(tel)) {
+                JOptionPane.showMessageDialog(this, "Teléfono inválido. Debe ser celular (9 dígitos).", "Error de Formato", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Validar Correo
+            if (!cor.isEmpty() && !SistemaNotas.validarCorreo(cor)) {
+                JOptionPane.showMessageDialog(this, "Correo inválido. Debe ser @gmail.com", "Error de Formato", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // RECOGER EL RESTO DE DATOS 
             String dir = txtDireccion.getText();
             char genero = cboxGenero.getSelectedItem().toString().charAt(0);
             
-            String nomApo = txtNombreApo.getText(); String apeApo = txtApellidoApo.getText();
+            String nomApo = txtNombreApo.getText(); 
+            String apeApo = txtApellidoApo.getText();
             String telApo = txtTelefonoApo.getText();
+            
+            // Validar Teléfono Apoderado
+            if (!telApo.isEmpty() && !SistemaNotas.validarTelefono(telApo)) {
+                 JOptionPane.showMessageDialog(this, "Teléfono del Apoderado inválido.", "Error", JOptionPane.WARNING_MESSAGE);
+                 return;
+            }
+            
             char genApo = txtGeneroApo.getText().isEmpty() ? ' ' : txtGeneroApo.getText().charAt(0);
             
             double n1 = leerDouble(txtNota1.getText());
@@ -804,67 +844,59 @@ public class Interfaz extends javax.swing.JFrame {
             double asist = leerDouble(txtAsistencia.getText());
             String comp = txtComportamiento.getText();
 
-            // 3. Lógica Guardar/Editar
-            Alumno existente = sistema.buscarAlumnoDni(dni);
+            //  CREAR OBJETOS Y GUARDAR
+            Apoderado apoderado = new Apoderado(dni, nomApo, apeApo, genApo, telApo);
+            RegistroAcademico registro = new RegistroAcademico(n1, n2, n3, n4, asist, comp);
+            Grado grado = new Grado("", 0, "");
+
+            Alumno existente = controller.buscarAlumnoPorDni(dni);
             
             if (existente != null) {
-                // EDITAR
+                // ACTUALIZAR
+                existente.setNombres(nom); existente.setApellidos(ape);
                 existente.setCorreo(cor); existente.setTelefono(tel);
-                existente.setDireccion(dir);
-                existente.setNombreApoderado(nomApo); existente.setApellidoApoderado(apeApo);
-                existente.setTelefonoApoderado(telApo);
-                existente.setNota1(n1); existente.setNota2(n2);
-                existente.setNota3(n3); existente.setNota4(n4);
-                existente.setPorcentajeAsistencia(asist);
-                existente.setComportamiento(comp);
-                javax.swing.JOptionPane.showMessageDialog(this, "Datos actualizados.");
+                existente.setDireccion(dir); existente.setGenero(genero);
+                existente.setApoderado(apoderado);
+                existente.setRegistroAcademico(registro);
+                JOptionPane.showMessageDialog(this, "Datos actualizados correctamente.");
             } else {
-                // NUEVO (Constructor Completo)
-                Alumno nuevo = new Alumno(
-                    dni, nom, ape, genero, 
-                    "", "", "", // Sección, Nivel, Grado (Vacíos)
-                    tel, cor, dir,
-                    nomApo, apeApo, genApo, "", telApo, 
-                    n1, n2, n3, n4, 
-                    null, // Retirado = No
-                    asist, comp
-                );
-                sistema.registrarAlumno(nuevo);
-                javax.swing.JOptionPane.showMessageDialog(this, "Alumno registrado.");
+                // NUEVO
+                Alumno nuevo = new Alumno(dni, nom, ape, genero, tel, cor, dir, apoderado, grado, registro);
+                controller.registrarAlumno(nuevo);
+                JOptionPane.showMessageDialog(this, "Alumno registrado con éxito.");
             }
             
             actualizarTabla(1);
             limpiarFormulario();
             
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error crítico: " + e.getMessage());
         }
-    } 
-
-    // --- MÉTODO HELPER NUEVO (Agrégalo al final de tu clase Interfaz) ---
-    // Convierte texto a double. Si está vacío o mal escrito, devuelve 0.0 en vez de error.
+    }
+   
     private double leerNotaSegura(String texto) {
         if (texto == null || texto.trim().isEmpty()) return 0.0;
         try {
             return Double.parseDouble(texto.trim());
         } catch (NumberFormatException e) {
-            return 0.0; // Si escribió "A", devolvemos 0.0
+            return 0.0; 
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnRetirarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRetirarActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here:                                          
         String dni = txtDni.getText().trim();
         if (dni.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(this, "Busque un alumno primero.");
             return;
         }
         
-        if (sistema.retirarAlumno(dni)) {
-             javax.swing.JOptionPane.showMessageDialog(this, "Alumno retirado.");
-             actualizarTabla(1);
-        } else {
-             javax.swing.JOptionPane.showMessageDialog(this, "No se pudo retirar.");
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(this, "¿Retirar alumno?", "Confirmar", javax.swing.JOptionPane.YES_NO_OPTION);
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+           
+            controller.retirarAlumno(dni);
+            javax.swing.JOptionPane.showMessageDialog(this, "Alumno retirado.");
+            actualizarTabla(1);
         }
     }//GEN-LAST:event_btnRetirarActionPerformed
 
