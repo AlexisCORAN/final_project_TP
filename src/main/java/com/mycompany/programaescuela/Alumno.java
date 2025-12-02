@@ -83,7 +83,34 @@ public class Alumno {
 
         recalcularPromedio();
     }
-
+    
+    public Alumno(String dni, String nombre, String apellido, String correo, String telefono,
+                  double n1, double n2, double n3, double n4, String retirado) {
+        
+        // El comando 'this' llama al Constructor 1 rellenando los huecos con datos vacíos
+        this(
+            dni, 
+            nombre, 
+            apellido, 
+            ' ',  // Género (Desconocido)
+            "",   // Sección
+            "",   // Nivel
+            "",   // Grado
+            telefono, 
+            correo, 
+            "",   // Dirección
+            "",   // Nombre Apoderado
+            "",   // Apellido Apoderado
+            ' ',  // Género Apoderado
+            "",   // Parentesco
+            "",   // Teléfono Apoderado
+            n1, n2, n3, n4, 
+            retirado, 
+            0.0,  // Asistencia (0%)
+            ""    // Comportamiento
+        );
+        recalcularPromedio();
+    }
 
     private void recalcularPromedio() {
         this.promedio = (nota1 + nota2 + nota3 + nota4) / 4.0;

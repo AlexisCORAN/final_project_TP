@@ -1,0 +1,32 @@
+﻿sep=,
+DNI,Nombres,Apellidos,Genero,Seccion,Nivel,Grado,Telefono,Correo,Direccion,NombreApoderado,ApellidoApoderado,GeneroApoderado,Parentesco,TelefonoApoderado,Nota1,Nota2,Nota3,Nota4,Promedio,Asistencia %,Comportamiento,Estado Academico,Retirado
+79149732,Juan Eduardo,Flores Salazar,M,A,Inicial,3 años,989083863,juan.flores.732@gmail.com,Miraflores,Raúl Antonio,Flores,M,Tío,979402654,11.50,19.10,13.20,10.90,13.67,77.4%,Regular,APROBADO,No
+76067228,Ana Andrea,Salazar Andrade,F,A,Inicial,4 años,916475255,ana.salazar.228@gmail.com,San Martín de Porres,José Manuel,Salazar,M,Padre,934192832,14.40,12.60,18.80,16.50,15.58,80.5%,Regular,APROBADO,No
+79515702,Carlos Mateo,Gonzales Quispe,M,A,Secundaria,Tercero,942388496,carlos.gonzales.702@gmail.com,Ate,Ana María,Quispe,F,Madre,996532871,17.20,18.20,11.50,11.50,14.60,92.0%,Excelente,APROBADO,No
+71871534,María Mía,Gonzales Andrade,F,C,Inicial,4 años,948281489,maria.gonzales.534@gmail.com,Surco,Patricio Gustavo,Gonzales,M,Hermano,932528809,13.10,10.20,18.80,18.30,15.10,95.8%,Regular,APROBADO,No
+77973915,José Claudio,Castillo Flores,M,C,Primaria,Primero,934657871,jose.castillo.915@gmail.com,Barranco,José Cecilio,Castillo,M,Padre,933150983,15.60,10.10,16.70,10.60,13.25,76.7%,Excelente,APROBADO,No
+79580513,Alejandro Pedro,Castillo Flores,M,A,Primaria,Primero,965667010,alejandro.castillo.513@gmail.com,San Martín de Porres,Juan Carlos,Castillo,M,Padre,965133387,11.30,11.70,14.40,18.30,13.93,76.9%,Excelente,APROBADO,Sí
+76728339,Andrés Emilio,Díaz Morales,M,B,Primaria,Segundo,946872343,andres.diaz.339@gmail.com,Lima,Thiago Edwin,Díaz,M,Padre,909805009,14.50,18.70,15.00,10.50,14.68,87.7%,Bueno,APROBADO,Sí
+71375453,Pablo Antonio,Saldaña Paredes,M,C,Inicial,5 años,953462475,pablo.saldana.453@gmail.com,La Molina,Mariana Antonia,Paredes,F,Madre,910799118,12.00,12.50,18.90,18.40,15.45,97.0%,Regular,APROBADO,No
+71936571,María Mariana,Huamán López,F,A,Secundaria,Segundo,953487401,maria.huaman.571@gmail.com,Miraflores,Iris Luna,López,F,Tía,964005242,17.00,15.20,14.10,10.10,14.10,76.9%,Bueno,APROBADO,No
+73524499,Hugo David,Vega Rodríguez,M,A,Secundaria,Cuarto,932260256,hugo.vega.499@gmail.com,Magdalena,Carlos David,Vega,M,Padre,934216073,11.90,18.70,13.30,17.80,15.43,96.8%,Bueno,APROBADO,Sí
+78546409,Valeria Lisa,Gonzales Jiménez,F,A,Inicial,4 años,994019655,vale.gonzales.409@gmail.com,La Molina,Abelardo Gadiel,Gonzales,M,Padre,969816934,10.40,14.10,14.90,17.70,14.27,92.2%,Bueno,APROBADO,No
+75472441,Sofía Karina,Salazar Castañeda,F,C,Primaria,Primero,962994680,sofia.salazar.441@gmail.com,La Molina,Eva Lía,Castañeda,F,Madre,944369957,14.20,16.40,14.90,17.50,15.75,99.0%,Bueno,APROBADO,No
+70775337,Ana Amil,Mendoza Flores,F,C,Primaria,Primero,993676320,ana.mendoza.337@gmail.com,San Borja,Rosa Melissa,Flores,F,Madre,916328708,12.40,18.10,14.30,17.60,15.60,91.7%,Regular,APROBADO,No
+74652512,Paola Ariana,Gonzales Pérez,F,A,Inicial,3 años,943455812,paola.gonzales.512@gmail.com,Santiago de Surco,Elena Miranda,Pérez,F,Madre,923623166,13.10,14.40,10.60,17.90,14.00,84.7%,Excelente,APROBADO,No
+79162579,María Sebastián,Jiménez Ramos,F,B,Secundaria,Primero,906562729,maria.jimenez.579@gmail.com,Santiago de Surco,Abril Cassandra,Ramos,F,Madre,980699016,11.30,14.40,10.50,13.60,12.45,80.3%,Regular,APROBADO,No
+70873851,Camila Lucía,García Salazar,F,A,Secundaria,Tercero,992327193,camila.garcia.851@gmail.com,San Miguel,Justino Alberto,García,M,Padre,974529912,19.20,11.00,10.20,13.00,13.35,91.9%,Malo,APROBADO,No
+72030966,Alberto Eduardo,Salazar Cruz,M,A,Secundaria,Quinto,985067165,alberto.salazar.966@gmail.com,Santiago de Surco,Luis Marco,Salazar,M,Padre,972628498,17.40,14.40,17.80,15.60,16.30,83.1%,Bueno,APROBADO,No
+76358385,Danna Sofi,Saldaña Paredes,F,B,Inicial,4 años,945494808,danna.saldana.385@gmail.com,San Miguel,María Luisa,Paredes,F,Hermana,931367837,16.10,14.70,17.50,10.90,14.80,80.5%,Bueno,APROBADO,No
+74545223,Paola Fernanda,Vega Ugarte,F,C,Inicial,3 años,982337498,paola.vega.223@gmail.com,Surco,Ignacio Javier,Vega,M,Padre,994134352,12.90,16.70,11.20,10.40,12.80,76.4%,Regular,APROBADO,No
+75716097,Victoria Emma,Díaz Morales,F,A,Primaria,Sexto,967190229,victoria.diaz.097@gmail.com,San Isidro,Roberto Marco,Díaz,M,Padre,941318699,17.50,12.10,15.00,14.30,14.73,86.1%,Malo,APROBADO,No
+72916107,Diego Javier,Quispe Mendoza,M,C,Primaria,Primero,974034471,diego.quispe.107@gmail.com,Barranco,Mariana Katia,Mendoza,F,Madre,934936183,16.20,18.60,17.90,10.70,15.85,79.1%,Regular,APROBADO,No
+79059387,Ana Mónica,Jiménez Gonzales,F,B,Primaria,Sexto,994013990,ana.jimenez.387@gmail.com,Jesús María,Helen Maura,Gonzales,F,Madre,949027874,11.70,15.60,16.00,14.70,14.50,77.3%,Regular,APROBADO,No
+76718473,Marco Mateo,Castañeda Díaz,M,B,Primaria,Terecero,951680876,marco.castaneda.473@gmail.com,Callao,Antonio Marco,Castañeda,M,Tío,903859770,11.90,15.20,18.80,14.20,15.03,92.5%,Excelente,APROBADO,Sí
+71903561,Luis Gerardo,Torres Quispe,M,C,Primaria,Segundo,946773782,luis.torres.561@gmail.com,Jesús María,Naomi Paz,Quispe,F,Madre,963982146,13.20,17.50,12.50,10.00,13.30,93.2%,Malo,APROBADO,No
+75398528,Carla Mary,Castillo Jiménez,F,B,Secundaria,Quinto,905766270,carla.castillo.528@gmail.com,Callao,Livia Ruth,Jiménez,F,Tía,928951718,18.60,10.10,11.40,18.30,14.60,99.2%,Excelente,APROBADO,No
+75312692,Camila Andrea,Andrade Castillo,F,A,Inicial,3 años,943161172,camila.andrade.692@gmail.com,Magdalena,Tatiana Uliana,Castillo,F,Madre,940050455,14.10,12.30,13.90,16.50,14.20,79.5%,Bueno,APROBADO,Sí
+74283671,David Mario,Paredes Gonzales,M,B,Inicial,5 años,994647436,david.paredes.671@gmail.com,Magdalena,Helga Gabriela,Gonzales,F,Madre,971369594,19.40,12.80,19.30,16.30,16.95,81.9%,Excelente,APROBADO,No
+72294774,Isabel Gaby,Mendoza Paredes,F,B,Secundaria,Primero,921456232,isabel.mendoza.774@gmail.com,Magdalena,Raúl Pablo,Mendoza,M,Padre,985884247,19.20,12.80,18.30,17.60,16.98,86.7%,Excelente,APROBADO,No
+72073474,Martina Miranda,García Salazar,F,A,Secundaria,Tercero,937098593,martina.garcia.474@gmail.com,Jesús María,Ana Juana,Salazar,F,Madre,917461200,12.90,14.70,10.90,18.40,14.23,78.4%,Malo,APROBADO,No
+76216461,Ramón Antonio,Torres Gonzales,M,B,Inicial,4 años,985064317,ramon.torres.461@gmail.com,San Borja,Marco Víctor,Torres,M,Padre,913900532,17.50,11.90,17.90,15.30,15.65,89.7%,Bueno,APROBADO,No
