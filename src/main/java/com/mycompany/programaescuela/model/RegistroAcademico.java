@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.mycompany.programaescuela;
+package com.mycompany.programaescuela.model;
 
 /**
  *
@@ -14,7 +14,7 @@ public class RegistroAcademico {
     private double nota3;
     private double nota4;
 
-    private double asistencia;   // porcentaje 0-100
+    private double asistencia;
     private String comportamiento;
 
     public RegistroAcademico() {}
@@ -31,6 +31,10 @@ public class RegistroAcademico {
 
     public double getPromedio() {
         return (nota1 + nota2 + nota3 + nota4) / 4;
+    }
+    
+    public String getestado() {
+        return (getPromedio() >= 11.5) ? "APROBADO" : "DESAPROBADO";
     }
     
     public double getNota1() { return nota1; }

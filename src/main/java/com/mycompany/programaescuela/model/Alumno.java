@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.mycompany.programaescuela;
+package com.mycompany.programaescuela.model;
 
 /**
  *
@@ -133,9 +133,24 @@ public class Alumno {
 
     public boolean isRetirado() { return retirado; }
     public void setRetirado(boolean retirado) { this.retirado = retirado; }
+    
+    public String getSituacion() {
+        return retirado ? "RETIRADO" : "ACTIVO";
+    }
 
     @Override
     public String toString() {
-        return dni + " - " + apellidos + ", " + nombres;
+        return String.format(" %s - %s %s | Grado: %s %s '%s' | Promedio: %.2f | Asistencia: %.1f%% | Comportamiento: %s | Situación: %s",
+            dni,
+            apellidos,
+            nombres,
+            grado.getNivel(),
+            grado.getGradoText(),
+            grado.getSeccion(),
+            registroAcademico.getPromedio(),
+            registroAcademico.getAsistencia(),
+            registroAcademico.getComportamiento(),
+            getSituacion()
+        );
     }
 }
